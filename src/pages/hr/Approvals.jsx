@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import Icons from '../../components/Icons';
 
 export default function Approvals() {
     const { evaluations, users, cycles, goals, approveEvaluation, rejectEvaluation, getScore } = useApp();
@@ -19,21 +20,22 @@ export default function Approvals() {
                     <h2 className="section-title">Approval Queue</h2>
                     <p className="section-subtitle">Review and approve manager evaluations</p>
                 </div>
-                <span className="badge badge-yellow">⏳ {pending.length} Pending</span>
+                <span className="badge badge-yellow">
+                    <Icons.Clock style={{ width: '14px', height: '14px', marginRight: '4px' }} /> {pending.length} Pending
+                </span>
             </div>
 
             {pending.length === 0 && (
-                <div className="card" style={{ padding: '32px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏁</div>
+                <div className="card" style={{ padding: '32px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '16px', color: 'var(--blue-light)' }}><Icons.Check style={{ width: '60px', height: '60px' }} /></div>
                     <h3 style={{ marginBottom: '8px' }}>No Pending Approvals</h3>
                     <p style={{ color: 'var(--text-muted)', maxWidth: '500px', margin: '0 auto 24px', lineHeight: '1.6' }}>
                         Evaluations appear here once managers complete reviews for their team members.
-                        If you expect evaluations but don't see them, check the following:
                     </p>
                     <div style={{ display: 'inline-flex', flexDirection: 'column', textAlign: 'left', gap: '8px', fontSize: '13px' }}>
-                        <div>✅ <b>Cycle Active?</b> Ensure a cycle is active in <a href="/hr/cycles" style={{ color: 'var(--primary)' }}>Cycles</a></div>
-                        <div>✅ <b>Managers Assigned?</b> Employees must have reporting managers in <a href="/hr/employees" style={{ color: 'var(--primary)' }}>Employees</a></div>
-                        <div>✅ <b>Goals Set?</b> Assign goals to employees in <a href="/hr/goals" style={{ color: 'var(--primary)' }}>Goals</a></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Icons.Check style={{ color: 'var(--green-light)', width: '14px' }} /> <b>Cycle Active?</b> Ensure a cycle is active in <a href="/hr/cycles" style={{ color: 'var(--primary)' }}>Cycles</a></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Icons.Check style={{ color: 'var(--green-light)', width: '14px' }} /> <b>Managers Assigned?</b> Employees must have reporting managers in <a href="/hr/employees" style={{ color: 'var(--primary)' }}>Employees</a></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Icons.Check style={{ color: 'var(--green-light)', width: '14px' }} /> <b>Goals Set?</b> Assign goals to employees in <a href="/hr/goals" style={{ color: 'var(--primary)' }}>Goals</a></div>
                     </div>
                 </div>
             )}
@@ -69,9 +71,14 @@ export default function Approvals() {
                             <div className="card-title" style={{ marginBottom: '8px' }}>Goal Ratings</div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                 {empGoals.map(g => (
-                                    <div key={g.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '8px', padding: '8px 12px', minWidth: '160px' }}>
+                                    <div key={g.id} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '8px 12px', minWidth: '160px' }}>
                                         <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '2px' }}>{g.title}</div>
-                                        <div style={{ fontWeight: 700 }}>{'⭐'.repeat(ev.goalRatings?.[g.id] || 0)} {ev.goalRatings?.[g.id] || 0}/5</div>
+                                        <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            {[...Array(5)].map((_, i) => (
+                                                <Icons.Star key={i} style={{ width: '12px', height: '12px', color: i < (ev.goalRatings?.[g.id] || 0) ? 'var(--blue-light)' : 'var(--text-muted)', fill: i < (ev.goalRatings?.[g.id] || 0) ? 'currentColor' : 'none' }} />
+                                            ))}
+                                            <span style={{ marginLeft: '4px' }}>{ev.goalRatings?.[g.id] || 0}/5</span>
+                                        </div>
                                         <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Weight: {g.weightage}%</div>
                                     </div>
                                 ))}
@@ -100,11 +107,11 @@ export default function Approvals() {
                                 value={comment[ev.id] || ''} onChange={e => setComment(p => ({ ...p, [ev.id]: e.target.value }))} />
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <button className="btn btn-success" onClick={() => { approveEvaluation(ev.id, comment[ev.id]); }}>
-                                ✅ Approve Evaluation
+                            <button className="btn btn-success" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => { approveEvaluation(ev.id, comment[ev.id]); }}>
+                                <Icons.Check /> Approve Evaluation
                             </button>
-                            <button className="btn btn-danger" onClick={() => { if (window.confirm('Reject this evaluation?')) rejectEvaluation(ev.id, comment[ev.id]); }}>
-                                ✗ Reject
+                            <button className="btn btn-danger" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => { if (window.confirm('Reject this evaluation?')) rejectEvaluation(ev.id, comment[ev.id]); }}>
+                                <Icons.X /> Reject
                             </button>
                         </div>
                     </div>

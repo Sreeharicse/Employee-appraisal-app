@@ -116,7 +116,7 @@ export default function SelfReview() {
             {goals.map(g => {
                 const gProgress = progress[g.id] || { percentage: 0, comment: '', complete: false };
                 return (
-                    <div key={g.id} className="card" style={{ marginBottom: '20px', background: gProgress.complete ? '#f0fdf4' : 'white' }}>
+                    <div key={g.id} className="card" style={{ marginBottom: '20px', background: gProgress.complete ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-card)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                             <div>
                                 <div style={{ fontWeight: 700 }}>{g.title}</div>
@@ -169,7 +169,7 @@ export default function SelfReview() {
             
             <label className="form-label">Goal-Specific Ratings</label>
             {goals.map(g => (
-                <div key={g.id} style={{ marginBottom: '16px', padding: '12px', background: '#f8fafc', borderRadius: '8px' }}>
+                <div key={g.id} style={{ marginBottom: '16px', padding: '12px', background: 'var(--bg-secondary)', borderRadius: '8px', boxShadow: 'var(--nm-shadow-in-sm)' }}>
                     <div style={{ fontWeight: 600, fontSize: '13px', marginBottom: '8px' }}>{g.title}</div>
                     <div className="rating-scale">
                         {[1, 2, 3, 4, 5].map(n => (
@@ -309,8 +309,9 @@ export default function SelfReview() {
                                     padding: '12px 16px',
                                     borderRadius: '8px',
                                     border: 'none',
-                                    background: activeTab === t.id ? 'var(--purple)' : 'transparent',
-                                    color: activeTab === t.id ? 'white' : 'var(--text-secondary)',
+                                    background: activeTab === t.id ? 'var(--bg-primary)' : 'transparent',
+                                    boxShadow: activeTab === t.id ? 'var(--nm-shadow-in-sm)' : 'none',
+                                    color: activeTab === t.id ? 'var(--blue-light)' : 'var(--text-secondary)',
                                     fontWeight: activeTab === t.id ? 700 : 500,
                                     cursor: 'pointer',
                                     marginBottom: '4px',

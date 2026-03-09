@@ -2,35 +2,36 @@ import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import logo from '../assets/logo-techxl.png';
+import Icons from './Icons';
 
 const HR_LINKS = [
-    { to: '/hr', label: 'Dashboard', icon: '🏠' },
-    { to: '/hr/employees', label: 'Employees', icon: '👥' },
-    { to: '/hr/cycles', label: 'Appraisal Cycles', icon: '🔄' },
-    { to: '/hr/goals', label: 'Assign Goals', icon: '🎯' },
-    { to: '/hr/approvals', label: 'Approvals', icon: '✅' },
-    { to: '/hr/reports', label: 'Reports', icon: '📈' },
+    { to: '/hr', label: 'Dashboard', icon: <Icons.Home /> },
+    { to: '/hr/employees', label: 'Employees', icon: <Icons.Users /> },
+    { to: '/hr/cycles', label: 'Appraisal Cycles', icon: <Icons.Cycles /> },
+    { to: '/hr/goals', label: 'Assign Goals', icon: <Icons.Target /> },
+    { to: '/hr/approvals', label: 'Approvals', icon: <Icons.Check /> },
+    { to: '/hr/reports', label: 'Reports', icon: <Icons.Chart /> },
 ];
 
 const MANAGER_LINKS = [
-    { to: '/manager', label: 'Dashboard', icon: '🏠' },
-    { to: '/manager/goals', label: 'Assign Goals', icon: '🎯' },
-    { to: '/manager/evaluate', label: 'Evaluate Team', icon: '⭐' },
-    { to: '/manager/team-report', label: 'Team Report', icon: '📊' },
+    { to: '/manager', label: 'Dashboard', icon: <Icons.Home /> },
+    { to: '/manager/goals', label: 'Assign Goals', icon: <Icons.Target /> },
+    { to: '/manager/evaluate', label: 'Evaluate Team', icon: <Icons.Star /> },
+    { to: '/manager/team-report', label: 'Team Report', icon: <Icons.Chart /> },
 ];
 
 const EMPLOYEE_LINKS = [
-    { to: '/employee', label: 'Dashboard', icon: '🏠' },
-    { to: '/employee/goals', label: 'My Goals', icon: '🎯' },
-    { to: '/employee/self-review', label: 'Self Review', icon: '📝' },
-    { to: '/employee/results', label: 'My Results', icon: '🏆' },
+    { to: '/employee', label: 'Dashboard', icon: <Icons.Home /> },
+    { to: '/employee/goals', label: 'My Goals', icon: <Icons.Target /> },
+    { to: '/employee/self-review', label: 'Self Review', icon: <Icons.FileText /> },
+    { to: '/employee/results', label: 'My Results', icon: <Icons.Trophy /> },
 ];
 
 const ROLE_LINKS = { hr: HR_LINKS, manager: MANAGER_LINKS, employee: EMPLOYEE_LINKS };
 const ROLE_LABELS = { hr: 'HR Administrator', manager: 'Team Manager', employee: 'Employee' };
 
 export default function Layout({ children }) {
-    const { currentUser, logout } = useApp();
+    const { currentUser, logout, theme, toggleTheme } = useApp();
     const navigate = useNavigate();
     const location = useLocation();
     const links = ROLE_LINKS[currentUser?.role] || [];
@@ -50,9 +51,10 @@ export default function Layout({ children }) {
         <div className="app-shell">
             <aside className="sidebar">
                 <div className="sidebar-logo">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                        <img src={logo} alt="Techxl Logo" style={{ width: '32px', height: 'auto' }} />
-                        <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Techxl</h2>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                        <div style={{ width: '48px', height: '48px', overflow: 'hidden', borderRadius: '12px', display: 'flex', justifyContent: 'flex-start' }}>
+                            <img src={logo} alt="Logo" style={{ height: '48px', width: 'auto', maxWidth: 'none' }} />
+                        </div>
                     </div>
                     <span>{ROLE_LABELS[currentUser?.role]}</span>
                 </div>
@@ -71,11 +73,27 @@ export default function Layout({ children }) {
                 </nav>
                 <div className="sidebar-footer">
                     <div className="user-badge">
-                        <div className="avatar">{currentUser?.avatar || '?'}</div>
+                        <div className="avatar" style={{ background: 'var(--blue-gradient)' }}>{currentUser?.avatar || '?'}</div>
                         <div className="user-info">
                             <div className="user-name">{currentUser?.name}</div>
                             <div className="user-role">{currentUser?.department}</div>
                         </div>
+                    </div>
+                    <div className="theme-switcher">
+                        <button 
+                            className={`theme-btn ${theme === 'dark' ? 'active' : ''}`} 
+                            onClick={() => toggleTheme('dark')}
+                            title="Dark Mode"
+                        >
+                            <Icons.Moon /> Dark
+                        </button>
+                        <button 
+                            className={`theme-btn ${theme === 'light' ? 'active' : ''}`} 
+                            onClick={() => toggleTheme('light')}
+                            title="Light Mode"
+                        >
+                            <Icons.Sun /> White
+                        </button>
                     </div>
                     <button className="logout-btn" onClick={handleLogout}>🚪 Sign Out</button>
                 </div>

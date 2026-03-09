@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import NextStepsCard from '../../components/NextStepsCard';
+import Icons from '../../components/Icons';
 
 export default function EmployeeDashboard() {
     const { currentUser, cycles, getGoalsForEmployee, getSelfReview, getEvaluation, getScore } = useApp();
@@ -76,28 +77,28 @@ export default function EmployeeDashboard() {
             </div>
 
             <div className="kpi-grid" style={{ marginBottom: '24px' }}>
-                <div className="kpi-card" style={{ '--accent-color': '#7c3aed', background: 'white', border: '1px solid #e2e8f0' }}>
-                    <div className="kpi-icon">🎯</div>
+                <div className="kpi-card" style={{ '--accent-color': '#7c3aed' }}>
+                    <div className="kpi-icon"><Icons.Target /></div>
                     <div className="kpi-label">Goals Assigned</div>
                     <div className="kpi-value">{goals.length}</div>
                     <div className="kpi-change">for this cycle</div>
                 </div>
-                <div className="kpi-card" style={{ '--accent-color': selfReview ? '#10b981' : '#f59e0b', background: 'white', border: '1px solid #e2e8f0' }}>
-                    <div className="kpi-icon">{selfReview ? '✅' : '📝'}</div>
+                <div className="kpi-card" style={{ '--accent-color': selfReview ? '#10b981' : '#f59e0b' }}>
+                    <div className="kpi-icon">{selfReview ? <Icons.Check /> : <Icons.FileText />}</div>
                     <div className="kpi-label">Self Review</div>
                     <div className="kpi-value" style={{ fontSize: '20px', marginTop: '4px' }}>{selfReview ? 'Submitted' : 'Pending'}</div>
                     <div className="kpi-change">{selfReview ? `on ${new Date(selfReview.submittedAt).toLocaleDateString()}` : 'action required'}</div>
                 </div>
-                <div className="kpi-card" style={{ '--accent-color': evaluation?.status === 'approved' ? '#10b981' : '#06b6d4', background: 'white', border: '1px solid #e2e8f0' }}>
-                    <div className="kpi-icon">⭐</div>
+                <div className="kpi-card" style={{ '--accent-color': evaluation?.status === 'approved' ? '#10b981' : '#06b6d4' }}>
+                    <div className="kpi-icon"><Icons.Star /></div>
                     <div className="kpi-label">Evaluation Status</div>
                     <div className="kpi-value" style={{ fontSize: '18px', marginTop: '4px' }}>
                         {evaluation ? evaluation.status.replace('_', ' ') : 'Awaiting'}
                     </div>
                     <div className="kpi-change">by your manager</div>
                 </div>
-                <div className="kpi-card" style={{ '--accent-color': scoreData ? '#f59e0b' : '#64748b', background: 'white', border: '1px solid #e2e8f0' }}>
-                    <div className="kpi-icon">🏆</div>
+                <div className="kpi-card" style={{ '--accent-color': scoreData ? '#f59e0b' : '#64748b' }}>
+                    <div className="kpi-icon"><Icons.Trophy /></div>
                     <div className="kpi-label">My Score</div>
                     <div className="kpi-value">{scoreData ? scoreData.score : '—'}</div>
                     <div className="kpi-change">{scoreData ? scoreData.category.label : 'not yet available'}</div>
@@ -107,13 +108,13 @@ export default function EmployeeDashboard() {
             {/* Action alerts */}
             {!selfReview && goals.length > 0 && (
                 <div className="alert alert-warning" style={{ borderRadius: '12px' }}>
-                    <span style={{ fontSize: '18px' }}>📝</span>
+                    <Icons.FileText style={{ width: '20px', height: '20px' }} />
                     <span>Your self-review is pending! Please submit it from the <b>Self Review</b> page.</span>
                 </div>
             )}
             {scoreData && (
                 <div className="alert alert-success" style={{ borderRadius: '12px' }}>
-                    <span style={{ fontSize: '18px' }}>🎉</span>
+                    <Icons.Trophy style={{ width: '20px', height: '20px' }} />
                     <span>Your evaluation is complete! Check your results on the <b>My Results</b> page.</span>
                 </div>
             )}
@@ -121,10 +122,12 @@ export default function EmployeeDashboard() {
             {/* Goals preview */}
             {goals.length > 0 && (
                 <div className="card">
-                    <div className="card-title" style={{ marginBottom: '16px', color: 'var(--text-primary)', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>🎯 My Goals (Quick View)</div>
+                    <div className="card-title" style={{ marginBottom: '16px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Icons.Target /> My Goals (Quick View)
+                    </div>
                     <div style={{ display: 'grid', gap: '2px' }}>
                         {goals.map(g => (
-                            <div key={g.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid #f1f5f9' }}>
+                            <div key={g.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
                                 <div>
                                     <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>{g.title}</div>
                                     <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>{g.description.slice(0, 100)}{g.description.length > 100 ? '...' : ''}</div>

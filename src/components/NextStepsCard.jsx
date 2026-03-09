@@ -47,7 +47,7 @@ export default function NextStepsCard({ title, description, actionPath, actionLa
                 fontSize: '40px',
                 width: '64px', height: '64px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(255,255,255,0.05)',
+                background: 'var(--bg-secondary)',
                 borderRadius: '16px'
             }}>
                 {styles.icon}

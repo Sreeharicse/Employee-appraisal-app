@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import Icons from '../../components/Icons';
 
 export default function HRGoals() {
     const { users, cycles, goals, addGoal, updateGoal, deleteGoal } = useApp();
@@ -49,8 +50,8 @@ export default function HRGoals() {
                     <h2 className="section-title">Goal Management</h2>
                     <p className="section-subtitle">Oversee and assign project goals across the organization</p>
                 </div>
-                <button className="btn btn-primary" onClick={openAdd} disabled={activeCycles.length === 0}>
-                    <span style={{ fontSize: '18px' }}>+</span> Assign New Goal
+                <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={openAdd} disabled={activeCycles.length === 0}>
+                    <Icons.Target /> Assign New Goal
                 </button>
             </div>
 
@@ -78,7 +79,7 @@ export default function HRGoals() {
             <div className="table-container">
                 <div className="table-header">
                     <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        🎯 Goals <span className="badge badge-gray">{filteredGoals.length}</span>
+                        <Icons.Target /> Goals <span className="badge badge-gray">{filteredGoals.length}</span>
                     </h3>
                 </div>
                 <table>
@@ -118,8 +119,8 @@ export default function HRGoals() {
                                     </td>
                                     <td style={{ textAlign: 'right', width: '120px' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                            <button className="btn btn-secondary btn-icon" title="Edit" onClick={() => openEdit(g)}>✏️</button>
-                                            <button className="btn btn-danger btn-icon" title="Delete" onClick={() => { if (confirm('Delete goal?')) deleteGoal(g.id); }}>🗑️</button>
+                                            <button className="btn btn-secondary btn-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Edit" onClick={() => openEdit(g)}><Icons.Edit /></button>
+                                            <button className="btn btn-danger btn-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Delete" onClick={() => { if (confirm('Delete goal?')) deleteGoal(g.id); }}><Icons.Trash /></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -185,7 +186,9 @@ export default function HRGoals() {
                         </div>
                         <div className="modal-footer">
                             <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                            <button className="btn btn-primary" onClick={handleSave}>💾 {editing ? 'Update' : 'Assign'} Goal</button>
+                            <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={handleSave}>
+                                <Icons.Save /> {editing ? 'Update' : 'Assign'} Goal
+                            </button>
                         </div>
                     </div>
                 </div>

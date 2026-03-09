@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import Icons from '../../components/Icons';
 
 export default function Employees() {
     const { users, addUser, updateUser, deleteUser } = useApp();
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ name: '', email: '', password: '', role: 'employee', department: '', managerId: '' });
+    const [form, setForm] = useState({ name: '', email: '', role: 'employee', department: '', managerId: '' });
     const [search, setSearch] = useState('');
 
     const managers = users.filter(u => u.role === 'manager');
@@ -15,8 +16,8 @@ export default function Employees() {
         u.department?.toLowerCase().includes(search.toLowerCase())
     );
 
-    const openAdd = () => { setEditing(null); setForm({ name: '', email: '', password: 'pass123', role: 'employee', department: '', managerId: '' }); setShowModal(true); };
-    const openEdit = (u) => { setEditing(u); setForm({ name: u.name, email: u.email, password: u.password, role: u.role, department: u.department || '', managerId: u.managerId || '' }); setShowModal(true); };
+    const openAdd = () => { setEditing(null); setForm({ name: '', email: '', role: 'employee', department: '', managerId: '' }); setShowModal(true); };
+    const openEdit = (u) => { setEditing(u); setForm({ name: u.name, email: u.email, role: u.role, department: u.department || '', managerId: u.managerId || '' }); setShowModal(true); };
 
     const handleSave = async () => {
         if (!form.name || !form.email) return;
@@ -64,8 +65,12 @@ export default function Employees() {
                                     <td>{mgr ? mgr.name : '—'}</td>
                                     <td>
                                         <div style={{ display: 'flex', gap: '6px' }}>
-                                            <button className="btn btn-secondary btn-sm" onClick={() => openEdit(u)}>✏️ Edit</button>
-                                            <button className="btn btn-danger btn-sm" onClick={() => { if (window.confirm('Delete this user?')) deleteUser(u.id); }}>🗑️</button>
+                                            <button className="btn btn-secondary btn-sm" onClick={() => openEdit(u)}>
+                                                <Icons.Edit style={{ marginRight: '4px' }} /> Edit
+                                            </button>
+                                            <button className="btn btn-danger btn-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { if (window.confirm('Delete this user?')) deleteUser(u.id); }}>
+                                                <Icons.Trash />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -95,16 +100,16 @@ export default function Employees() {
                             </div>
                             <div className="form-grid">
                                 <div className="form-group">
-                                    <label className="form-label">Password</label>
-                                    <input className="form-input" value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} />
-                                </div>
-                                <div className="form-group">
                                     <label className="form-label">Role</label>
                                     <select className="form-select" value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))}>
                                         <option value="employee">Employee</option>
                                         <option value="manager">Manager</option>
                                         <option value="hr">HR Admin</option>
                                     </select>
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Auth Method</label>
+                                    <input className="form-input" value="Microsoft SSO" disabled />
                                 </div>
                             </div>
                             <div className="form-grid">
@@ -123,7 +128,9 @@ export default function Employees() {
                         </div>
                         <div className="modal-footer">
                             <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                            <button className="btn btn-primary" onClick={handleSave}>💾 Save</button>
+                            <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={handleSave}>
+                                <Icons.Save /> Save
+                            </button>
                         </div>
                     </div>
                 </div>

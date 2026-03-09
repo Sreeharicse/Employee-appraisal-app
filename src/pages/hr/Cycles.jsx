@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import Icons from '../../components/Icons';
 
 export default function Cycles() {
     const { cycles, addCycle, updateCycle, deleteCycle } = useApp();
@@ -51,19 +52,27 @@ export default function Cycles() {
                         {cycles.map(c => (
                             <tr key={c.id}>
                                 <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{c.name}</td>
-                                <td>📅 {c.startDate}</td>
-                                <td>📅 {c.endDate}</td>
+                                <td><Icons.Calendar style={{ width: '12px', height: '12px', marginRight: '4px', verticalAlign: 'middle' }} /> {c.startDate}</td>
+                                <td><Icons.Calendar style={{ width: '12px', height: '12px', marginRight: '4px', verticalAlign: 'middle' }} /> {c.endDate}</td>
                                 <td><span className={`badge ${statusBadge[c.status] || 'badge-gray'}`}>{c.status}</span></td>
                                 <td>
                                     <div style={{ display: 'flex', gap: '6px' }}>
                                         {c.status !== 'active' && c.status !== 'closed' && (
-                                            <button className="btn btn-success btn-sm" onClick={() => activate(c)}>▶ Activate</button>
+                                            <button className="btn btn-success btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '4px' }} onClick={() => activate(c)}>
+                                                <Icons.Play /> Activate
+                                            </button>
                                         )}
                                         {c.status === 'active' && (
-                                            <button className="btn btn-secondary btn-sm" onClick={() => close(c)}>⏹ Close</button>
+                                            <button className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '4px' }} onClick={() => close(c)}>
+                                                <Icons.Square /> Close
+                                            </button>
                                         )}
-                                        <button className="btn btn-secondary btn-sm" onClick={() => openEdit(c)}>✏️ Edit</button>
-                                        <button className="btn btn-danger btn-sm" onClick={() => { if (window.confirm('Delete cycle?')) deleteCycle(c.id); }}>🗑️</button>
+                                        <button className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '4px' }} onClick={() => openEdit(c)}>
+                                            <Icons.Edit /> Edit
+                                        </button>
+                                        <button className="btn btn-danger btn-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { if (window.confirm('Delete cycle?')) deleteCycle(c.id); }}>
+                                            <Icons.Trash />
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -105,7 +114,9 @@ export default function Cycles() {
                         </div>
                         <div className="modal-footer">
                             <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                            <button className="btn btn-primary" onClick={handleSave}>💾 Save</button>
+                            <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={handleSave}>
+                                <Icons.Save /> Save
+                            </button>
                         </div>
                     </div>
                 </div>

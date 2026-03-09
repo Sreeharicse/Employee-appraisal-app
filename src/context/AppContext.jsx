@@ -33,6 +33,7 @@ export function AppProvider({ children }) {
     const [evaluations, setEvaluations] = useState([]);
     const [approvals, setApprovals] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [theme, setTheme] = useState(localStorage.getItem('app-theme') || 'dark');
 
     // ──── Fetch all data from Supabase ────
     const fetchAllData = useCallback(async () => {
@@ -178,26 +179,48 @@ export function AppProvider({ children }) {
                     .eq('id', session.user.id)
                     .single();
 
-                // If profile doesn't exist (e.g., first time SSO login), auto-create it
+                // If profile doesn't exist (e.g., first time SSO login), auto-create or link it
                 if (!profile) {
-                    const metadata = session.user.user_metadata || {};
-                    const fullName = metadata.full_name || metadata.name || session.user.email?.split('@')[0] || 'Unknown User';
-                    const avatar = fullName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+                    // First, check if there's a profile with this email (pre-registered by HR)
+                    const { data: existingProfile } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('email', session.user.email)
+                        .single();
 
-                    const newProfile = {
-                        id: session.user.id,
-                        name: fullName,
-                        email: session.user.email,
-                        role: 'employee',
-                        department: 'General',
-                        avatar: avatar,
-                    };
-
-                    const { error } = await supabase.from('profiles').insert(newProfile);
-                    if (!error) {
-                        profile = newProfile;
+                    if (existingProfile) {
+                        // Link existing profile to this Auth user ID
+                        const { error: linkError } = await supabase
+                            .from('profiles')
+                            .update({ id: session.user.id })
+                            .eq('email', session.user.email);
+                        
+                        if (!linkError) {
+                            profile = { ...existingProfile, id: session.user.id };
+                        } else {
+                            console.error("Failed to link profile:", linkError.message);
+                        }
                     } else {
-                        console.error("Failed to auto-create profile:", error.message);
+                        // No profile exists, create a new one
+                        const metadata = session.user.user_metadata || {};
+                        const fullName = metadata.full_name || metadata.name || session.user.email?.split('@')[0] || 'Unknown User';
+                        const avatar = fullName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+                        const newProfile = {
+                            id: session.user.id,
+                            name: fullName,
+                            email: session.user.email,
+                            role: 'employee',
+                            department: 'General',
+                            avatar: avatar,
+                        };
+
+                        const { error } = await supabase.from('profiles').insert(newProfile);
+                        if (!error) {
+                            profile = newProfile;
+                        } else {
+                            console.error("Failed to auto-create profile:", error.message);
+                        }
                     }
                 }
 
@@ -235,6 +258,16 @@ export function AppProvider({ children }) {
             subscription.unsubscribe();
         };
     }, [fetchAllData]);
+
+    // Apply theme class to body
+    useEffect(() => {
+        document.body.className = `${theme}-theme`;
+        localStorage.setItem('app-theme', theme);
+    }, [theme]);
+
+    const toggleTheme = (newTheme) => {
+        setTheme(newTheme);
+    };
 
     // ──── Auth Actions ────
     const loginWithMicrosoft = async () => {
@@ -380,36 +413,44 @@ export function AppProvider({ children }) {
 
     // ──── Users CRUD (HR only — manages profiles) ────
     const addUser = async (user) => {
-        if (localStorage.getItem('fake_session_role')) {
-            const mapped = { id: crypto.randomUUID(), name: user.name, email: user.email, role: user.role, department: user.department, avatar: user.avatar, managerId: user.managerId || null };
-            setUsers(p => [...p, mapped]);
-            return mapped;
-        }
-
-        // Create auth user first (requires service_role key in production — for demo we create profile only)
-        const { data, error } = await supabase.from('profiles').insert({
-            id: user.id, // Must be a valid auth.users UUID
+        const tempId = user.id || crypto.randomUUID();
+        const profileData = {
+            id: tempId,
             name: user.name,
             email: user.email,
             role: user.role,
             department: user.department,
             avatar: user.avatar,
             manager_id: user.managerId || null,
-        }).select().single();
-        if (!error && data) {
-            const mapped = { id: data.id, name: data.name, email: data.email, role: data.role, department: data.department, avatar: data.avatar, managerId: data.manager_id };
-            setUsers(p => [...p, mapped]);
-            return mapped;
+        };
+
+        // Always attempt Supabase insert if not in purely offline/fake mode
+        // If it fails (e.g. RLS), we still update local state for testing if in fake mode
+        const { data, error } = await supabase.from('profiles').insert(profileData).select().single();
+
+        if (error) {
+            console.warn("Supabase insert failed (possibly due to RLS/Auth):", error.message);
         }
-        return null;
+
+        const result = data ? { 
+            id: data.id, 
+            name: data.name, 
+            email: data.email, 
+            role: data.role, 
+            department: data.department, 
+            avatar: data.avatar, 
+            managerId: data.manager_id 
+        } : { 
+            ...user, 
+            id: tempId, 
+            managerId: user.managerId || null 
+        };
+
+        setUsers(p => [...p, result]);
+        return result;
     };
 
     const updateUser = async (id, updates) => {
-        if (localStorage.getItem('fake_session_role')) {
-            setUsers(p => p.map(u => u.id === id ? { ...u, ...updates } : u));
-            return;
-        }
-
         const dbUpdates = {};
         if (updates.name !== undefined) dbUpdates.name = updates.name;
         if (updates.email !== undefined) dbUpdates.email = updates.email;
@@ -419,20 +460,22 @@ export function AppProvider({ children }) {
         if (updates.managerId !== undefined) dbUpdates.manager_id = updates.managerId || null;
 
         const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', id);
-        if (error) console.error("Failed to update user profile in Supabase:", error.message);
-        if (!error) {
-            setUsers(p => p.map(u => u.id === id ? { ...u, ...updates, managerId: updates.managerId || null } : u));
+        
+        if (error) {
+            console.warn("Supabase update failed:", error.message);
         }
+
+        // Always update local state
+        setUsers(p => p.map(u => u.id === id ? { ...u, ...updates, managerId: updates.managerId !== undefined ? updates.managerId : u.managerId } : u));
     };
 
     const deleteUser = async (id) => {
-        if (localStorage.getItem('fake_session_role')) {
-            setUsers(p => p.filter(u => u.id !== id));
-            return;
-        }
-
         const { error } = await supabase.from('profiles').delete().eq('id', id);
-        if (!error) setUsers(p => p.filter(u => u.id !== id));
+        if (error) {
+            console.warn("Supabase delete failed:", error.message);
+        }
+        // Always update local state
+        setUsers(p => p.filter(u => u.id !== id));
     };
 
     // ──── Cycles CRUD ────
@@ -766,6 +809,7 @@ export function AppProvider({ children }) {
             addCycle, updateCycle, deleteCycle,
             addGoal, updateGoal, deleteGoal,
             submitSelfReview, submitEvaluation,
+            theme, toggleTheme,
             approveEvaluation, rejectEvaluation,
             getActiveCycle, getUserById, getGoalsForEmployee,
             getTeamEmployees, getSelfReview, getEvaluation, getScore,

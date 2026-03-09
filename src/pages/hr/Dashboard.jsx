@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import NextStepsCard from '../../components/NextStepsCard';
+import Icons from '../../components/Icons';
 
 export default function HRDashboard() {
     const { users, cycles, goals, evaluations, selfReviews, getActiveCycle } = useApp();
@@ -45,7 +46,10 @@ export default function HRDashboard() {
                     <p className="section-subtitle">Overview of appraisal progress and key metrics</p>
                 </div>
                 {activeCycle && (
-                    <span className="badge badge-green">🟢 {activeCycle.name} — Active</span>
+                    <span className="badge badge-green">
+                        <Icons.Check style={{ width: '14px', height: '14px', marginRight: '4px' }} />
+                        {activeCycle.name} — Active
+                    </span>
                 )}
             </div>
 
@@ -74,25 +78,25 @@ export default function HRDashboard() {
             {/* KPI Cards */}
             <div className="kpi-grid">
                 <div className="kpi-card" style={{ '--accent-color': '#7c3aed' }}>
-                    <div className="kpi-icon">👥</div>
+                    <div className="kpi-icon"><Icons.Users /></div>
                     <div className="kpi-label">Total Employees</div>
                     <div className="kpi-value">{employees.length}</div>
                     <div className="kpi-change">+{managers.length} managers</div>
                 </div>
                 <div className="kpi-card" style={{ '--accent-color': '#06b6d4' }}>
-                    <div className="kpi-icon">🔄</div>
+                    <div className="kpi-icon"><Icons.Cycles /></div>
                     <div className="kpi-label">Active Cycles</div>
                     <div className="kpi-value">{cycles.filter(c => c.status === 'active').length}</div>
                     <div className="kpi-change">{cycles.length} total cycles</div>
                 </div>
                 <div className="kpi-card" style={{ '--accent-color': '#f59e0b' }}>
-                    <div className="kpi-icon">⏳</div>
+                    <div className="kpi-icon"><Icons.Clock /></div>
                     <div className="kpi-label">Pending Approvals</div>
                     <div className="kpi-value">{pendingApprovals.length}</div>
                     <div className="kpi-change">{approved.length} approved</div>
                 </div>
                 <div className="kpi-card" style={{ '--accent-color': '#10b981' }}>
-                    <div className="kpi-icon">🎯</div>
+                    <div className="kpi-icon"><Icons.Target /></div>
                     <div className="kpi-label">Goals Assigned</div>
                     <div className="kpi-value">{goals.length}</div>
                     <div className="kpi-change">{selfReviewsDone} self-reviews done</div>
@@ -105,8 +109,8 @@ export default function HRDashboard() {
                     <div className="card">
                         <div className="card-title">Active Cycle</div>
                         <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{activeCycle.name}</div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                            📅 {activeCycle.startDate} → {activeCycle.endDate}
+                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Icons.Calendar style={{ width: '12px', height: '12px' }} /> {activeCycle.startDate} → {activeCycle.endDate}
                         </div>
                         <div style={{ marginTop: '16px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px' }}>
@@ -123,7 +127,7 @@ export default function HRDashboard() {
                         {[...evaluations].reverse().slice(0, 3).map((ev, i) => {
                             return (
                                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                                    <div style={{ fontSize: '20px' }}>⭐</div>
+                                    <div style={{ color: 'var(--blue-light)' }}><Icons.Star /></div>
                                     <div>
                                         <div style={{ fontSize: '13px', fontWeight: 600 }}>Evaluation submitted</div>
                                         <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{ev.submittedAt}</div>

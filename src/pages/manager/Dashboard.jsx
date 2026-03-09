@@ -1,5 +1,6 @@
 import { useApp } from '../../context/AppContext';
 import NextStepsCard from '../../components/NextStepsCard';
+import Icons from '../../components/Icons';
 
 export default function ManagerDashboard() {
     const { currentUser, getTeamEmployees, getActiveCycle, goals, evaluations, selfReviews } = useApp();
@@ -42,32 +43,37 @@ export default function ManagerDashboard() {
                     <h2 className="section-title">Manager Dashboard</h2>
                     <p className="section-subtitle">Track your team's appraisal progress</p>
                 </div>
-                {cycle && <span className="badge badge-green">🟢 {cycle.name}</span>}
+                {cycle && (
+                    <span className="badge badge-green">
+                        <Icons.Check style={{ width: '14px', height: '14px', marginRight: '4px' }} />
+                        {cycle.name}
+                    </span>
+                )}
             </div>
 
             <NextStepsCard {...nextStep} />
 
             <div className="kpi-grid">
                 <div className="kpi-card" style={{ '--accent-color': '#7c3aed' }}>
-                    <div className="kpi-icon">👥</div>
+                    <div className="kpi-icon"><Icons.Users /></div>
                     <div className="kpi-label">Team Size</div>
                     <div className="kpi-value">{team.length}</div>
                     <div className="kpi-change">direct reports</div>
                 </div>
                 <div className="kpi-card" style={{ '--accent-color': '#06b6d4' }}>
-                    <div className="kpi-icon">🎯</div>
+                    <div className="kpi-icon"><Icons.Target /></div>
                     <div className="kpi-label">Goals Assigned</div>
                     <div className="kpi-value">{teamGoals.length}</div>
                     <div className="kpi-change">for active cycle</div>
                 </div>
                 <div className="kpi-card" style={{ '--accent-color': '#f59e0b' }}>
-                    <div className="kpi-icon">📝</div>
+                    <div className="kpi-icon"><Icons.FileText /></div>
                     <div className="kpi-label">Self Reviews</div>
                     <div className="kpi-value">{teamReviews.length}/{team.length}</div>
                     <div className="kpi-change">submitted</div>
                 </div>
                 <div className="kpi-card" style={{ '--accent-color': '#10b981' }}>
-                    <div className="kpi-icon">⭐</div>
+                    <div className="kpi-icon"><Icons.Star /></div>
                     <div className="kpi-label">Evaluations Done</div>
                     <div className="kpi-value">{teamEvals.length}/{team.length}</div>
                     <div className="kpi-change">completed</div>
@@ -94,8 +100,8 @@ export default function ManagerDashboard() {
                                     </td>
                                     <td>{emp.department}</td>
                                     <td><span className="badge badge-blue">{empGoals} goals</span></td>
-                                    <td><span className={`badge ${hasReview ? 'badge-green' : 'badge-gray'}`}>{hasReview ? '✓ Done' : '⏳ Pending'}</span></td>
-                                    <td><span className={`badge ${hasEval ? 'badge-green' : 'badge-gray'}`}>{hasEval ? '✓ Done' : '⏳ Pending'}</span></td>
+                                    <td><span className={`badge ${hasReview ? 'badge-green' : 'badge-gray'}`}>{hasReview ? '✓ Done' : <><Icons.Clock style={{ width: '12px', height: '12px', marginRight: '4px' }} /> Pending</>}</span></td>
+                                    <td><span className={`badge ${hasEval ? 'badge-green' : 'badge-gray'}`}>{hasEval ? '✓ Done' : <><Icons.Clock style={{ width: '12px', height: '12px', marginRight: '4px' }} /> Pending</>}</span></td>
                                 </tr>
                             );
                         })}

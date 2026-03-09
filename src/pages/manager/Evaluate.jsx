@@ -116,8 +116,8 @@ export default function Evaluate() {
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 18px',
                                             borderRadius: '12px', border: isActive ? '2px solid var(--purple)' : '1px solid var(--border)',
-                                            background: isActive ? 'white' : '#f8fafc',
-                                            boxShadow: isActive ? '0 4px 12px rgba(124,58,237,0.1)' : 'none',
+                                            background: isActive ? 'var(--bg-primary)' : 'var(--bg-secondary)',
+                                            boxShadow: isActive ? 'var(--nm-shadow-in-sm)' : 'var(--nm-shadow-out-sm)',
                                             cursor: 'pointer', color: 'var(--text-primary)', transition: 'all 0.2s', position: 'relative'
                                         }}>
                                         <div className="avatar" style={{ width: '32px', height: '32px', fontSize: '12px' }}>{t.avatar}</div>
@@ -125,9 +125,10 @@ export default function Evaluate() {
                                         {hasEval && (
                                             <span style={{
                                                 position: 'absolute', top: '-6px', right: '-6px',
-                                                background: '#10b981', color: 'white',
+                                                background: 'var(--green)', color: 'white',
                                                 width: '18px', height: '18px', borderRadius: '50%',
-                                                fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                                             }}>✓</span>
                                         )}
                                     </button>
@@ -137,16 +138,16 @@ export default function Evaluate() {
                     </div>
 
                     {selfReview && (
-                        <div className="card" style={{ marginBottom: '24px', background: '#ecfeff', border: '1px solid #0891b233' }}>
+                        <div className="card" style={{ marginBottom: '24px', background: 'rgba(6, 182, 212, 0.08)', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
                             <div className="card-title" style={{ color: 'var(--cyan)', marginBottom: '8px' }}>📝 Employee Self-Review Summary</div>
-                            <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#164e63' }}>{selfReview.summary}</p>
+                            <p style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--text-primary)' }}>{selfReview.summary}</p>
                         </div>
                     )}
 
                     {saved && <div className="alert alert-success" style={{ marginBottom: '24px' }}>✨ Evaluation details synchronized with record.</div>}
 
                     <div className="card" style={{ marginBottom: '24px' }}>
-                        <div className="card-title" style={{ marginBottom: '20px', color: 'var(--text-primary)', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>2. Goal Performance</div>
+                        <div className="card-title" style={{ marginBottom: '20px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>2. Goal Performance</div>
                         {empGoals.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
                                 No specific goals found for {emp?.name} in this cycle.
@@ -192,9 +193,9 @@ export default function Evaluate() {
 
                     <div style={{ position: 'sticky', bottom: '24px', zIndex: 10 }}>
                         <div className="card" style={{
-                            background: 'white',
+                            background: 'var(--bg-card)',
                             border: '2px solid var(--purple)',
-                            boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                            boxShadow: 'var(--nm-shadow-out)',
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                             padding: '16px 24px'
                         }}>
