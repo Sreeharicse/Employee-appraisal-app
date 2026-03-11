@@ -13,7 +13,7 @@
   --topbar-height: 72px;
   --radius: 24px;
   --radius-sm: 12px;
-  
+
   --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   --blue-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   --dark-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -26,7 +26,7 @@
   --bg-card-hover: #1e2227;
   --border: rgba(255, 255, 255, 0.05);
   --border-accent: rgba(59, 130, 246, 0.2);
-  
+
   /* Dark Neumorphism Shadows */
   --nm-shadow-out: 10px 10px 20px #0b0d0f, -10px -10px 20px #1d2125;
   --nm-shadow-in: inset 10px 10px 20px #0b0d0f, inset -10px -10px 20px #1d2125;
@@ -42,25 +42,25 @@
 }
 
 .light-theme {
-  --bg-primary: #e0e5ec;
-  --bg-secondary: #e0e5ec;
-  --bg-card: #e0e5ec;
-  --bg-card-hover: #e8eef6;
-  --border: rgba(0, 0, 0, 0.05);
-  --border-accent: rgba(59, 130, 246, 0.2);
-  
-  /* Light Neumorphism Shadows - Softened */
-  --nm-shadow-out: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
-  --nm-shadow-in: inset 10px 10px 20px #d1d9e6, inset -10px -10px 20px #ffffff;
-  --nm-shadow-out-sm: 5px 5px 10px #d1d9e6, -5px -5px 10px #ffffff;
-  --nm-shadow-in-sm: inset 5px 5px 10px #d1d9e6, inset -5px -5px 10px #ffffff;
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-accent: rgba(0, 0, 0, 0.12);
 
-  --text-primary: #2d3436;
-  --text-secondary: #636e72;
-  --text-muted: #b2bec3;
-  --glow: 0 0 15px rgba(59, 130, 246, 0.1);
-  --btn-shadow: 6px 6px 12px #d1d9e6, -6px -6px 12px #ffffff;
-  --btn-shadow-hover: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
+  /* Premium Neutral Shadows */
+  --nm-shadow-out: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --nm-shadow-in: none;
+  --nm-shadow-out-sm: 0 2px 10px rgba(0, 0, 0, 0.03);
+  --nm-shadow-in-sm: none;
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --glow: none;
+  --btn-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --btn-shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 :root {
@@ -78,7 +78,7 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: var(--bg-primary);
+  background: #ffffff !important;
   color: var(--text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -103,6 +103,11 @@ body {
 .app-shell {
   display: flex;
   min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.app-shell::before {
+  content: none;
 }
 
 .sidebar {
@@ -250,13 +255,14 @@ body {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--purple), var(--indigo));
+  background: var(--blue-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
+  color: white;
 }
 
 .user-info {
@@ -337,7 +343,7 @@ body {
 /* Cards */
 .card {
   background: var(--bg-card);
-  border: none;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--nm-shadow-out);
@@ -360,10 +366,7 @@ body {
 .card-value {
   font-size: 32px;
   font-weight: 800;
-  background: linear-gradient(135deg, #fff, var(--purple-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
 }
 
 .card-sub {
@@ -595,7 +598,7 @@ tr:hover td {
 .form-textarea {
   width: 100%;
   background: var(--bg-secondary);
-  border: none;
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 12px 16px;
   color: var(--text-primary);
@@ -603,7 +606,7 @@ tr:hover td {
   font-family: inherit;
   transition: all 0.2s;
   outline: none;
-  box-shadow: var(--nm-shadow-in-sm);
+  box-shadow: none;
 }
 
 .form-input:focus,
@@ -632,7 +635,7 @@ tr:hover td {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -755,14 +758,14 @@ tr:hover td {
 }
 
 .modal-content {
-  background: #151731;
+  background: var(--bg-card);
   border: 1px solid var(--border-accent);
   border-radius: 16px;
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), var(--glow);
+  box-shadow: var(--nm-shadow-out);
   animation: modalIn 0.25s ease;
   padding: 28px 32px;
 }
@@ -933,31 +936,33 @@ tr:hover td {
 .progress-fill {
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, var(--purple), var(--indigo));
+  background: var(--blue-gradient);
   transition: width 0.6s ease;
 }
 
 /* Login */
 .login-page {
   min-height: 100vh;
-  background: radial-gradient(ellipse at 20% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(79, 70, 229, 0.1) 0%, transparent 50%),
-    var(--bg-primary);
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
 }
 
+.login-page::before {
+  content: none;
+}
+
 .login-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 40px;
   width: 100%;
   max-width: 440px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), var(--glow);
+  box-shadow: var(--nm-shadow-out);
 }
 
 .login-logo {
@@ -968,14 +973,14 @@ tr:hover td {
 .login-logo-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, var(--purple), var(--indigo));
+  background: var(--blue-gradient);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32px;
   margin: 0 auto 16px;
-  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .login-logo h1 {
@@ -1050,10 +1055,10 @@ tr:hover td {
 }
 
 .rating-btn.selected {
-  background: linear-gradient(135deg, var(--purple), var(--indigo));
-  border-color: var(--purple);
+  background: var(--blue-gradient);
+  border-color: var(--blue);
   color: white;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 /* Workflow steps */
@@ -1097,10 +1102,10 @@ tr:hover td {
 }
 
 .step-dot.active {
-  background: var(--purple);
-  border-color: var(--purple-light);
+  background: var(--blue);
+  border-color: var(--blue-light);
   color: white;
-  box-shadow: 0 0 12px rgba(124, 58, 237, 0.5);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
 }
 
 .step-label {
@@ -1133,7 +1138,7 @@ tr:hover td {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: conic-gradient(var(--purple) calc(var(--pct) * 1%), rgba(255, 255, 255, 0.05) 0);
+  background: conic-gradient(var(--blue) calc(var(--pct) * 1%), var(--border) 0);
   position: relative;
 }
 
@@ -1252,16 +1257,17 @@ tr:hover td {
 }
 
 .ms-auth-card {
-  background: var(--bg-card);
+  background: #ffffff;
   width: 100%;
   max-width: 440px;
   padding: 48px;
   border-radius: var(--radius);
-  box-shadow: var(--nm-shadow-out);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .ms-auth-logo {
@@ -1332,26 +1338,27 @@ tr:hover td {
 }
 
 .ms-auth-microsoft-btn {
+  width: 100%;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  width: 100%;
-  padding: 14px 24px;
-  background: var(--blue-gradient);
+  background: #2f2f2f;
+  color: white;
   border: none;
   border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 700;
-  color: white;
-  transition: all 0.3s ease;
-  box-shadow: 6px 6px 12px rgba(75, 108, 183, 0.3), -6px -6px 12px rgba(255, 255, 255, 0.4);
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.ms-auth-microsoft-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 8px 8px 16px rgba(75, 108, 183, 0.4), -8px -8px 16px rgba(255, 255, 255, 0.5);
+.ms-auth-microsoft-btn:hover {
+  background: #1f1f1f;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   opacity: 0.95;
 }
 

@@ -9,23 +9,23 @@ export default function NextStepsCard({ title, description, actionPath, actionLa
             case 'complete':
                 return {
                     icon: '✅',
-                    border: 'rgba(16, 185, 129, 0.3)',
-                    glow: '0 0 20px rgba(16, 185, 129, 0.1)',
-                    bg: 'rgba(16, 185, 129, 0.05)'
+                    border: 'rgba(16, 185, 129, 0.2)',
+                    glow: 'none',
+                    bg: 'var(--bg-secondary)'
                 };
             case 'waiting':
                 return {
                     icon: '⏳',
-                    border: 'rgba(245, 158, 11, 0.3)',
-                    glow: '0 0 20px rgba(245, 158, 11, 0.1)',
-                    bg: 'rgba(245, 158, 11, 0.05)'
+                    border: 'var(--border)',
+                    glow: 'none',
+                    bg: 'var(--bg-secondary)'
                 };
             default: // pending
                 return {
                     icon: '🚀',
-                    border: 'rgba(124, 58, 237, 0.3)',
-                    glow: '0 0 20px rgba(124, 58, 237, 0.2)',
-                    bg: 'rgba(124, 58, 237, 0.05)'
+                    border: 'var(--border-accent)',
+                    glow: 'none',
+                    bg: 'var(--bg-secondary)'
                 };
         }
     };

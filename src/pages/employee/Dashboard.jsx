@@ -78,7 +78,7 @@ export default function EmployeeDashboard() {
 
             {/* Quick Tips or Info */}
             <div style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-                <div className="card" style={{ background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%)', border: '1px solid rgba(124, 58, 237, 0.2)' }}>
+                <div className="card" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)' }}>
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                         <div style={{ padding: '8px', background: 'var(--bg-card)', borderRadius: '8px', color: '#7c3aed' }}>
                             <Icons.FileText />
@@ -91,7 +91,7 @@ export default function EmployeeDashboard() {
                         </div>
                     </div>
                 </div>
-                <div className="card" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <div className="card" style={{ background: 'var(--bg-secondary)', border: '1px solid rgba(16, 185, 129, 0.15)' }}>
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                         <div style={{ padding: '8px', background: 'var(--bg-card)', borderRadius: '8px', color: '#10b981' }}>
                             <Icons.Check />
