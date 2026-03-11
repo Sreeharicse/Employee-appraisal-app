@@ -34,6 +34,7 @@ export function AppProvider({ children }) {
     const [approvals, setApprovals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [theme, setTheme] = useState(localStorage.getItem('app-theme') || 'dark');
+    const [encryptionKey, _setEncryptionKey] = useState(localStorage.getItem('admin_encryption_key') || 'techxl-secure-2026');
 
     // ──── Fetch all data from Supabase ────
     const fetchAllData = useCallback(async () => {
@@ -172,6 +173,7 @@ export function AppProvider({ children }) {
             const fakeRole = localStorage.getItem('fake_session_role');
             if (fakeRole && mounted) {
                 const fakeUsers = {
+                    'admin': { id: 'admin-001', name: 'System Administrator', email: 'admin@techxle.com', role: 'admin', department: 'IT / Operations', avatar: 'AD', managerId: null },
                     'hr': { id: 'b065d8b6-fddf-4f21-a1d4-b26e23d40999', name: 'Surya Prabhakar Ganapathy Kannan', email: 'surya.p@techxle.com', role: 'hr', department: 'hr', avatar: 'SP', managerId: null },
                     'manager': { id: 'b7e82aea-1d9e-4765-82e1-802f40adcb26', name: 'Haran Sinka', email: 'haran@techxle.com', role: 'manager', department: 'manager', avatar: 'HS', managerId: null },
                     'employee': { id: '46342d06-791b-45e3-8ce2-a67eb322675c', name: 'Sreehari Palani', email: 'sreehari@techxle.com', role: 'employee', department: 'employee', avatar: 'SP', managerId: 'b7e82aea-1d9e-4765-82e1-802f40adcb26' }
@@ -305,6 +307,39 @@ export function AppProvider({ children }) {
         setTheme(newTheme);
     };
 
+    const setEncryptionKey = (key) => {
+        _setEncryptionKey(key);
+        localStorage.setItem('admin_encryption_key', key);
+    };
+
+    const resetAndSeedFakeData = () => {
+        // Clear existing local mock data
+        localStorage.removeItem('fake_cycles');
+        localStorage.removeItem('fake_goals');
+        localStorage.removeItem('fake_reviews');
+        localStorage.removeItem('fake_evaluations');
+        localStorage.removeItem('fake_approvals');
+
+        // Initial Seed
+        const seedCycles = [
+            { id: 'cycle-2026', name: 'Annual Review 2026', startDate: '2026-01-01', endDate: '2026-12-31', status: 'active', createdBy: 'admin-001' }
+        ];
+        const seedGoals = [
+            { id: 'goal-1', cycleId: 'cycle-2026', employeeId: '46342d06-791b-45e3-8ce2-a67eb322675c', managerId: 'b7e82aea-1d9e-4765-82e1-802f40adcb26', title: 'Complete Project Alpha', description: 'Deliver all components of Project Alpha on time.', weightage: 60, deadline: '2026-06-30', status: 'active' },
+            { id: 'goal-2', cycleId: 'cycle-2026', employeeId: '46342d06-791b-45e3-8ce2-a67eb322675c', managerId: 'b7e82aea-1d9e-4765-82e1-802f40adcb26', title: 'Upskill in React Native', description: 'Complete advanced certification Course.', weightage: 40, deadline: '2026-12-31', status: 'active' }
+        ];
+
+        localStorage.setItem('fake_cycles', JSON.stringify(seedCycles));
+        localStorage.setItem('fake_goals', JSON.stringify(seedGoals));
+
+        // Refresh state
+        setCycles(seedCycles);
+        setGoals(seedGoals);
+        setSelfReviews([]);
+        setEvaluations([]);
+        setApprovals([]);
+    };
+
     // ──── Auth Actions ────
     const loginWithMicrosoft = async () => {
         const { data, error } = await supabase.auth.signInWithOAuth({
@@ -385,6 +420,15 @@ export function AppProvider({ children }) {
 
     const loginAsFake = async (role) => {
         const fakeUsers = {
+            'admin': {
+                id: 'admin-001',
+                name: 'System Administrator',
+                email: 'admin@techxle.com',
+                role: 'admin',
+                department: 'IT / Operations',
+                avatar: 'AD',
+                managerId: null
+            },
             'hr': {
                 id: 'b065d8b6-fddf-4f21-a1d4-b26e23d40999',
                 name: 'Surya Prabhakar Ganapathy Kannan',
@@ -880,6 +924,7 @@ export function AppProvider({ children }) {
             addGoal, updateGoal, deleteGoal,
             submitSelfReview, submitEvaluation,
             theme, toggleTheme, refreshData: fetchAllData,
+            encryptionKey, setEncryptionKey, resetAndSeedFakeData,
             approveEvaluation, rejectEvaluation,
             getActiveCycle, getUserById, getGoalsForEmployee,
             getTeamEmployees, getSelfReview, getEvaluation, getScore,

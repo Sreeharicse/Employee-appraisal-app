@@ -4,36 +4,52 @@ import { useApp } from '../context/AppContext';
 import logo from '../assets/logo-techxl.png';
 import Icons from './Icons';
 
+// BASE LINKS - Available to ALL roles
+const BASE_LINKS = [
+    { to: '/dashboard', label: 'Dashboard', icon: <Icons.Home /> },
+    { to: '/employee/goals', label: 'My Goals', icon: <Icons.Target /> },
+    { to: '/employee/self-review', label: 'Self Review', icon: <Icons.FileText /> },
+    { to: '/employee/results', label: 'My Results', icon: <Icons.Trophy /> },
+];
+
+const EMPLOYEE_LINKS = [...BASE_LINKS];
+
+// MANAGER LINKS - Base + Manager specific
+const MANAGER_LINKS = [
+    ...BASE_LINKS,
+    { to: '/manager', label: 'Evaluate Team', icon: <Icons.Users /> },
+    { to: '/manager/goals', label: 'Team Report', icon: <Icons.Chart /> },
+    { to: '/hr/employees', label: 'Employees', icon: <Icons.Users /> },
+];
+
+// HR LINKS - Base + HR specific
 const HR_LINKS = [
-    { to: '/hr', label: 'Dashboard', icon: <Icons.Home /> },
+    ...BASE_LINKS,
     { to: '/hr/employees', label: 'Employees', icon: <Icons.Users /> },
     { to: '/hr/cycles', label: 'Appraisal Cycles', icon: <Icons.Cycles /> },
-    { to: '/hr/goals', label: 'Assign Goals', icon: <Icons.Target /> },
     { to: '/hr/approvals', label: 'Approvals', icon: <Icons.Check /> },
     { to: '/hr/reports', label: 'Reports', icon: <Icons.Chart /> },
 ];
 
-const MANAGER_LINKS = [
-    { to: '/manager', label: 'Dashboard', icon: <Icons.Home /> },
-    { to: '/manager/goals', label: 'Assign Goals', icon: <Icons.Target /> },
-    { to: '/manager/evaluate', label: 'Evaluate Team', icon: <Icons.Star /> },
-    { to: '/manager/team-report', label: 'Team Report', icon: <Icons.Chart /> },
-];
-
-const EMPLOYEE_LINKS = [
-    { to: '/employee', label: 'Dashboard', icon: <Icons.Home /> },
-    { to: '/employee/goals', label: 'My Goals', icon: <Icons.Target /> },
-    { to: '/employee/self-review', label: 'Self Review', icon: <Icons.FileText /> },
-    { to: '/employee/results', label: 'My Results', icon: <Icons.Trophy /> },
+// ADMIN LINKS - ALL links + Admin settings
+const ADMIN_LINKS = [
+    ...BASE_LINKS,
+    { to: '/manager', label: 'Evaluate Team', icon: <Icons.Users /> },
+    { to: '/manager/goals', label: 'Team Report', icon: <Icons.Chart /> },
+    { to: '/hr/employees', label: 'Employees', icon: <Icons.Users /> },
+    { to: '/hr/cycles', label: 'Appraisal Cycles', icon: <Icons.Cycles /> },
+    { to: '/hr/approvals', label: 'Approvals', icon: <Icons.Check /> },
+    { to: '/hr/reports', label: 'Reports', icon: <Icons.Chart /> },
+    { to: '/admin/settings', label: 'Admin Settings', icon: <Icons.Edit /> },
 ];
 
 const ROLE_LINKS = {
     employee: EMPLOYEE_LINKS,
     manager: MANAGER_LINKS,
     hr: HR_LINKS,
-    admin: [...MANAGER_LINKS, ...HR_LINKS]
+    admin: ADMIN_LINKS
 };
-const ROLE_LABELS = { hr: 'HR Administrator', manager: 'Team Manager', employee: 'Employee', admin: 'Administrator' };
+const ROLE_LABELS = { hr: 'HR Administrator', manager: 'Team Manager', employee: 'Employee', admin: 'System Administrator' };
 
 export default function Layout({ children }) {
     const { currentUser, logout, theme, toggleTheme } = useApp();
@@ -47,8 +63,11 @@ export default function Layout({ children }) {
     };
 
     const getPageTitle = () => {
-        const all = [...HR_LINKS, ...MANAGER_LINKS, ...EMPLOYEE_LINKS];
-        const match = all.slice().reverse().find(l => location.pathname.startsWith(l.to) && (l.to !== '/hr' || location.pathname === '/hr') && (l.to !== '/manager' || location.pathname === '/manager') && (l.to !== '/employee' || location.pathname === '/employee'));
+        const all = [...HR_LINKS, ...MANAGER_LINKS, ...EMPLOYEE_LINKS, ...ADMIN_LINKS]; // duplicates are fine for find
+        const match = all.slice().reverse().find(l => 
+            location.pathname.startsWith(l.to) && 
+            (l.to !== '/dashboard' || location.pathname === '/dashboard')
+        );
         return match?.label || 'Techxl';
     };
 
@@ -64,11 +83,11 @@ export default function Layout({ children }) {
                     <span>{ROLE_LABELS[currentUser?.role]}</span>
                 </div>
                 <nav className="sidebar-nav">
-                    {links.map(link => (
+                    {links.map((link, index) => (
                         <NavLink
-                            key={link.to}
+                            key={index}
                             to={link.to}
-                            end={link.to === '/hr' || link.to === '/manager' || link.to === '/employee'}
+                            end={link.to === '/dashboard'}
                             className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
                         >
                             <span className="icon">{link.icon}</span>

@@ -50,7 +50,7 @@ export default function Login() {
                 </div>
 
                 <h1 className="ms-auth-title" style={{ marginBottom: '32px' }}>Sign In</h1>
-                
+
                 {error && <div className="ms-auth-error">{error}</div>}
 
                 <button
@@ -69,10 +69,11 @@ export default function Login() {
 
                 <div style={{ marginTop: '32px', width: '100%', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
                     <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '16px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>Developer Testing</p>
-                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                        <button onClick={() => loginAsFake('hr')} className="btn btn-secondary" style={{ flex: 1 }}>HR</button>
-                        <button onClick={() => loginAsFake('manager')} className="btn btn-secondary" style={{ flex: 1 }}>Manager</button>
-                        <button onClick={() => loginAsFake('employee')} className="btn btn-secondary" style={{ flex: 1 }}>Employee</button>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button onClick={() => loginAsFake('admin')} className="btn btn-secondary" style={{ flex: '1 1 40%' }}>Admin</button>
+                        <button onClick={() => loginAsFake('hr')} className="btn btn-secondary" style={{ flex: '1 1 40%' }}>HR</button>
+                        <button onClick={() => loginAsFake('manager')} className="btn btn-secondary" style={{ flex: '1 1 40%' }}>Manager</button>
+                        <button onClick={() => loginAsFake('employee')} className="btn btn-secondary" style={{ flex: '1 1 40%' }}>Employee</button>
                     </div>
                 </div>
             </div>

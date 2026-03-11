@@ -4,22 +4,26 @@ import { AppProvider, useApp } from './context/AppContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 
+// Unified Dashboard
+import UnifiedDashboard from './pages/Dashboard';
+
 // HR pages
-import HRDashboard from './pages/hr/Dashboard';
 import Employees from './pages/hr/Employees';
 import Cycles from './pages/hr/Cycles';
 import Approvals from './pages/hr/Approvals';
 import Reports from './pages/hr/Reports';
 import HRGoals from './pages/hr/Goals';
+import HRCycleDetail from './pages/hr/CycleDetail';
+
+// Admin pages
+import AdminSettings from './pages/admin/Settings';
 
 // Manager pages
-import ManagerDashboard from './pages/manager/Dashboard';
 import Goals from './pages/manager/Goals';
 import Evaluate from './pages/manager/Evaluate';
 import TeamReport from './pages/manager/TeamReport';
 
 // Employee pages
-import EmployeeDashboard from './pages/employee/Dashboard';
 import EmployeeGoals from './pages/employee/Goals';
 import SelfReview from './pages/employee/SelfReview';
 import Results from './pages/employee/Results';
@@ -31,16 +35,16 @@ function ProtectedRoute({ children, allowedRoles }) {
   if (!currentUser) return <Navigate to="/login" replace />;
 
   const isAllowed = (role) => {
-    if (role === 'admin') return true;
+    if (role === 'admin') return true; // Admin has full access
+    if (allowedRoles.includes('all')) return true; // Everyone can access 'all' roles
     if (allowedRoles.includes(role)) return true;
     if (role === 'manager' && allowedRoles.includes('employee')) return true;
+    if (role === 'hr' && allowedRoles.includes('employee')) return true;
     return false;
   };
 
   if (allowedRoles && !isAllowed(currentUser.role)) {
-    if (currentUser.role === 'hr') return <Navigate to="/hr" replace />;
-    if (currentUser.role === 'manager') return <Navigate to="/manager" replace />;
-    return <Navigate to="/employee" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
   return children;
 }
@@ -61,30 +65,39 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={currentUser ? <Navigate to={`/${currentUser.role}`} replace /> : <Login />} />
+      <Route path="/login" element={currentUser ? <Navigate to="/dashboard" replace /> : <Login />} />
       <Route path="/wireframes" element={<WireframeMockup />} />
 
+      {/* Unified Dashboard */}
+      <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['all']}><Layout><UnifiedDashboard /></Layout></ProtectedRoute>} />
+
       {/* HR Routes */}
-      <Route path="/hr" element={<ProtectedRoute allowedRoles={['hr']}><Layout><HRDashboard /></Layout></ProtectedRoute>} />
-      <Route path="/hr/employees" element={<ProtectedRoute allowedRoles={['hr']}><Layout><Employees /></Layout></ProtectedRoute>} />
+      <Route path="/hr/cycle/:cycleId" element={<ProtectedRoute allowedRoles={['hr']}><Layout><HRCycleDetail /></Layout></ProtectedRoute>} />
+      <Route path="/hr/employees" element={<ProtectedRoute allowedRoles={['hr', 'manager']}><Layout><Employees /></Layout></ProtectedRoute>} />
       <Route path="/hr/cycles" element={<ProtectedRoute allowedRoles={['hr']}><Layout><Cycles /></Layout></ProtectedRoute>} />
       <Route path="/hr/approvals" element={<ProtectedRoute allowedRoles={['hr']}><Layout><Approvals /></Layout></ProtectedRoute>} />
       <Route path="/hr/reports" element={<ProtectedRoute allowedRoles={['hr']}><Layout><Reports /></Layout></ProtectedRoute>} />
       <Route path="/hr/goals" element={<ProtectedRoute allowedRoles={['hr']}><Layout><HRGoals /></Layout></ProtectedRoute>} />
 
-      {/* Manager Routes */}
-      <Route path="/manager" element={<ProtectedRoute allowedRoles={['manager']}><Layout><ManagerDashboard /></Layout></ProtectedRoute>} />
-      <Route path="/manager/goals" element={<ProtectedRoute allowedRoles={['manager']}><Layout><Goals /></Layout></ProtectedRoute>} />
-      <Route path="/manager/evaluate" element={<ProtectedRoute allowedRoles={['manager']}><Layout><Evaluate /></Layout></ProtectedRoute>} />
-      <Route path="/manager/evaluate/:employeeId" element={<ProtectedRoute allowedRoles={['manager']}><Layout><Evaluate /></Layout></ProtectedRoute>} />
-      <Route path="/manager/team-report" element={<ProtectedRoute allowedRoles={['manager']}><Layout><TeamReport /></Layout></ProtectedRoute>} />
+      {/* Admin Routes */}
+      <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><Layout><AdminSettings /></Layout></ProtectedRoute>} />
 
-      {/* Employee Routes */}
-      <Route path="/employee" element={<ProtectedRoute allowedRoles={['employee']}><Layout><EmployeeDashboard /></Layout></ProtectedRoute>} />
-      <Route path="/employee/cycle/:cycleId" element={<ProtectedRoute allowedRoles={['employee']}><Layout><CycleDetail /></Layout></ProtectedRoute>} />
-      <Route path="/employee/goals" element={<ProtectedRoute allowedRoles={['employee']}><Layout><EmployeeGoals /></Layout></ProtectedRoute>} />
-      <Route path="/employee/self-review" element={<ProtectedRoute allowedRoles={['employee']}><Layout><SelfReview /></Layout></ProtectedRoute>} />
-      <Route path="/employee/results" element={<ProtectedRoute allowedRoles={['employee']}><Layout><Results /></Layout></ProtectedRoute>} />
+      {/* Manager Routes */}
+      <Route path="/manager" element={<ProtectedRoute allowedRoles={['manager']}><Layout><Evaluate /></Layout></ProtectedRoute>} />
+      <Route path="/manager/goals" element={<ProtectedRoute allowedRoles={['manager']}><Layout><TeamReport /></Layout></ProtectedRoute>} />
+      <Route path="/manager/evaluate/:employeeId" element={<ProtectedRoute allowedRoles={['manager']}><Layout><Evaluate /></Layout></ProtectedRoute>} />
+
+      {/* Employee (Baseline) Routes - Accessible by All */}
+      <Route path="/employee/cycle/:cycleId" element={<ProtectedRoute allowedRoles={['all']}><Layout><CycleDetail /></Layout></ProtectedRoute>} />
+      <Route path="/employee/goals" element={<ProtectedRoute allowedRoles={['all']}><Layout><EmployeeGoals /></Layout></ProtectedRoute>} />
+      <Route path="/employee/self-review" element={<ProtectedRoute allowedRoles={['all']}><Layout><SelfReview /></Layout></ProtectedRoute>} />
+      <Route path="/employee/results" element={<ProtectedRoute allowedRoles={['all']}><Layout><Results /></Layout></ProtectedRoute>} />
+
+      {/* Redirections for old dashboard links */}
+      <Route path="/hr" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/manager" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/employee" element={<Navigate to="/dashboard" replace />} />
 
       {/* Default */}
       <Route path="/" element={<Navigate to="/login" replace />} />
