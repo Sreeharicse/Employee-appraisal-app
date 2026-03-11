@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { PERFORMANCE_CATEGORIES } from '../data/constants';
+import { encrypt, decrypt } from '../utils/encryption';
 
 const AppContext = createContext(null);
 
@@ -106,14 +107,24 @@ export function AppProvider({ children }) {
             status: g.status,
         })));
         setSelfReviews((reviewsData || []).map(r => {
-            let metadata = { status: 'draft' }; // Default status
+            let metadata = { status: 'draft' }; 
             try {
                 if (r.comments && r.comments.startsWith('{')) {
                     metadata = JSON.parse(r.comments);
+                    if (metadata.comments) metadata.comments = decrypt(metadata.comments);
+                    if (metadata.feedback) metadata.feedback = decrypt(metadata.feedback);
+                    if (metadata.achievements) metadata.achievements = decrypt(metadata.achievements);
+                    if (metadata.learning) metadata.learning = decrypt(metadata.learning);
+                    if (metadata.competencies) {
+                        Object.keys(metadata.competencies).forEach(qid => {
+                            if (metadata.competencies[qid]?.comment) {
+                                metadata.competencies[qid].comment = decrypt(metadata.competencies[qid].comment);
+                            }
+                        });
+                    }
                 }
             } catch (e) {
                 console.error("Failed to parse review metadata", e);
-                // If parsing fails, metadata remains the default { status: 'draft' }
             }
 
             return {
@@ -122,10 +133,10 @@ export function AppProvider({ children }) {
                 employeeId: r.employee_id,
                 summary: r.summary,
                 goalRatings: r.goal_ratings || {},
-                comments: metadata.comments || r.comments, // Fallback to raw if not JSON
-                metadata: metadata, // Store full metadata object
+                comments: metadata.comments || r.comments, 
+                metadata: metadata, 
                 submittedAt: r.submitted_at,
-                status: metadata.status || 'submitted' // Fallback for old ones
+                status: metadata.status || 'submitted'
             };
         }));
         setEvaluations((evalsData || []).map(e => {
@@ -133,6 +144,14 @@ export function AppProvider({ children }) {
             try {
                 if (e.feedback && e.feedback.startsWith('{')) {
                     metadata = JSON.parse(e.feedback);
+                    if (metadata.feedback) metadata.feedback = decrypt(metadata.feedback);
+                    if (metadata.competencies) {
+                        Object.keys(metadata.competencies).forEach(qid => {
+                            if (metadata.competencies[qid]?.comment) {
+                                metadata.competencies[qid].comment = decrypt(metadata.competencies[qid].comment);
+                            }
+                        });
+                    }
                 }
             } catch (err) {
                 console.error("Failed to parse evaluation metadata", err);
@@ -146,8 +165,8 @@ export function AppProvider({ children }) {
                 goalRatings: e.goal_ratings || {},
                 workPerformanceRating: e.work_performance_rating,
                 behavioralRating: e.behavioral_rating,
-                feedback: metadata.feedback || e.feedback, // Fallback to raw if not JSON
-                metadata: metadata, // Store full metadata object (contains competencies)
+                feedback: metadata.feedback || e.feedback,
+                metadata: metadata,
                 status: e.status,
                 rejectionComment: e.rejection_comment,
                 submittedAt: e.submitted_at,
@@ -702,8 +721,28 @@ export function AppProvider({ children }) {
     const submitSelfReview = async (review) => {
         const existing = selfReviews.find(r => r.cycleId === review.cycleId && r.employeeId === review.employeeId);
 
-        // Comprehensive metadata storage
-        const metadata = {
+        const encryptedCompetencies = {};
+        if (review.competencies) {
+            Object.keys(review.competencies).forEach(qid => {
+                encryptedCompetencies[qid] = {
+                    ...review.competencies[qid],
+                    comment: encrypt(review.competencies[qid].comment)
+                };
+            });
+        }
+        
+        const metadataForStorage = {
+            comments: encrypt(review.comments),
+            progress: review.progress || {},
+            competencies: encryptedCompetencies,
+            feedback: encrypt(review.feedback || ''),
+            achievements: encrypt(review.achievements || ''),
+            learning: encrypt(review.learning || ''),
+            status: review.status || 'draft'
+        };
+        const packedComments = JSON.stringify(metadataForStorage);
+
+        const unencryptedMetadata = {
             comments: review.comments,
             progress: review.progress || {},
             competencies: review.competencies || {},
@@ -712,7 +751,6 @@ export function AppProvider({ children }) {
             learning: review.learning || '',
             status: review.status || 'draft'
         };
-        const packedComments = JSON.stringify(metadata);
 
         if (localStorage.getItem('fake_session_role')) {
             const mapped = {
@@ -722,7 +760,7 @@ export function AppProvider({ children }) {
                 summary: review.summary,
                 goalRatings: review.goalRatings,
                 comments: review.comments,
-                metadata: metadata,
+                metadata: unencryptedMetadata,
                 submittedAt: new Date().toISOString().split('T')[0]
             };
             setSelfReviews(p => {
@@ -758,7 +796,7 @@ export function AppProvider({ children }) {
                 summary: r.summary,
                 goalRatings: r.goal_ratings,
                 comments: review.comments,
-                metadata: metadata,
+                metadata: unencryptedMetadata,
                 submittedAt: r.submitted_at
             };
             setSelfReviews(p => existing ? p.map(x => x.id === existing.id ? mapped : x) : [...p, mapped]);
@@ -771,11 +809,26 @@ export function AppProvider({ children }) {
     const submitEvaluation = async (evaluation) => {
         const existing = evaluations.find(e => e.cycleId === evaluation.cycleId && e.employeeId === evaluation.employeeId);
 
-        const metadata = {
+        const encryptedCompetencies = {};
+        if (evaluation.competencies) {
+            Object.keys(evaluation.competencies).forEach(qid => {
+                encryptedCompetencies[qid] = {
+                    ...evaluation.competencies[qid],
+                    comment: encrypt(evaluation.competencies[qid].comment)
+                };
+            });
+        }
+        
+        const metadataForStorage = {
+            feedback: encrypt(evaluation.feedback),
+            competencies: encryptedCompetencies
+        };
+        const packedFeedback = JSON.stringify(metadataForStorage);
+
+        const unencryptedMetadata = {
             feedback: evaluation.feedback,
             competencies: evaluation.competencies || {}
         };
-        const packedFeedback = JSON.stringify(metadata);
 
         if (localStorage.getItem('fake_session_role')) {
             const mapped = {
@@ -787,7 +840,7 @@ export function AppProvider({ children }) {
                 workPerformanceRating: evaluation.workPerformanceRating,
                 behavioralRating: evaluation.behavioralRating,
                 feedback: evaluation.feedback,
-                metadata: metadata,
+                metadata: unencryptedMetadata,
                 status: 'pending_approval',
                 rejectionComment: null,
                 submittedAt: new Date().toISOString().split('T')[0]
@@ -826,7 +879,6 @@ export function AppProvider({ children }) {
             return null;
         }
         if (data) {
-            const metadata = data.feedback && data.feedback.startsWith('{') ? JSON.parse(data.feedback) : {};
             const mapped = {
                 id: data.id,
                 cycleId: data.cycle_id,
@@ -835,8 +887,8 @@ export function AppProvider({ children }) {
                 goalRatings: data.goal_ratings || {},
                 workPerformanceRating: data.work_performance_rating,
                 behavioralRating: data.behavioral_rating,
-                feedback: metadata.feedback || data.feedback,
-                metadata: metadata,
+                feedback: evaluation.feedback,
+                metadata: unencryptedMetadata,
                 status: data.status,
                 rejectionComment: data.rejection_comment,
                 submittedAt: data.submitted_at
