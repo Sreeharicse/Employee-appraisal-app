@@ -28,9 +28,11 @@ export default function Evaluate() {
     const [behaviorRating, setBehaviorRating] = useState(0);
 
     const TABS = [
-        { id: 1, label: '🎯 Goal Performance' },
-        { id: 2, label: '🧩 Competencies' },
-        { id: 3, label: '🏁 Final Assessment' }
+        { id: 1, label: '🧩 Competencies' },
+        { id: 2, label: '🏆 Achievements' },
+        { id: 3, label: '📚 Learning & Dev' },
+        { id: 4, label: '💬 Employee Feedback' },
+        { id: 5, label: '🏁 Final Assessment' }
     ];
 
     const COMPETENCY_QUESTIONS = [
@@ -53,11 +55,11 @@ export default function Evaluate() {
 
     const RATING_OPTIONS = [
         { value: 0, label: 'Select Rating...' },
-        { value: 1, label: '1 — Outstanding' },
-        { value: 2, label: '2 — Exceeds Expectations' },
+        { value: 1, label: '1 — Poor' },
+        { value: 2, label: '2 — Needs Improvement' },
         { value: 3, label: '3 — Meets Expectations' },
-        { value: 4, label: '4 — Needs Improvement' },
-        { value: 5, label: '5 — Poor' }
+        { value: 4, label: '4 — Exceeds Expectations' },
+        { value: 5, label: '5 — Outstanding' }
     ];
 
     useEffect(() => {
@@ -68,8 +70,8 @@ export default function Evaluate() {
 
     const cycle = cycles.find(c => String(c.id) === String(selectedCycleId));
     const emp = users.find(u => String(u.id) === String(selectedEmp));
-    const empGoals = cycle ? getGoalsForEmployee(selectedEmp, cycle.id) : [];
-    const selfReview = cycle ? selfReviews.find(r => String(r.employeeId) === String(selectedEmp) && String(r.cycleId) === String(cycle.id)) : null;
+    const empGoals = cycle && emp ? getGoalsForEmployee(selectedEmp, cycle.id) : [];
+    const selfReview = cycle && emp ? selfReviews.find(r => String(r.employeeId) === String(selectedEmp) && String(r.cycleId) === String(cycle.id)) : null;
     const empComps = selfReview?.metadata?.competencies || {};
 
     useEffect(() => {
@@ -124,7 +126,6 @@ export default function Evaluate() {
         await submitEvaluation({
             cycleId: selectedCycleId,
             employeeId: selectedEmp,
-            goalRatings,
             competencies,
             feedback,
             workPerformanceRating: legacyRating,
@@ -133,11 +134,6 @@ export default function Evaluate() {
         setSaved(true);
         setHasEdited(false);
         alert('Evaluation submitted successfully!');
-    };
-
-    const updateGoalRating = (gid, val) => {
-        setGoalRatings(p => ({ ...p, [gid]: val }));
-        setHasEdited(true);
     };
 
     const updateCompRating = (qid, val) => {
@@ -150,36 +146,6 @@ export default function Evaluate() {
         setHasEdited(true);
     };
 
-    const previewScore = empGoals.length > 0 && workRating > 0 && behaviorRating > 0
-        ? calculateScore(empGoals, goalRatings, workRating, behaviorRating)
-        : null;
-
-    const renderGoalsTab = () => (
-        <div className="card" style={{ padding: '24px' }}>
-            <div className="card-title" style={{ marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>Goal Performance Assessment</div>
-            <div style={{ display: 'grid', gap: '24px' }}>
-                {empGoals.length === 0 && <p className="text-muted">No goals associated with this employee for the selected cycle.</p>}
-                {empGoals.map(g => (
-                    <div key={g.id} className="card" style={{ background: 'var(--bg-secondary)', border: 'none', padding: '20px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                            <div style={{ fontWeight: 700, fontSize: '15px' }}>{g.title}</div>
-                            <span className="badge badge-purple">Weight: {g.weightage}%</span>
-                        </div>
-                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>{g.description}</p>
-                        <div className="rating-scale" style={{ justifyContent: 'flex-start', gap: '8px' }}>
-                            {[1, 2, 3, 4, 5].map(n => (
-                                <button key={n} type="button"
-                                    className={`rating-btn ${goalRatings[g.id] === n ? 'selected' : ''}`}
-                                    onClick={() => updateGoalRating(g.id, n)}>
-                                    {n}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
 
     const renderCompetenciesTab = () => (
         <div>
@@ -234,6 +200,27 @@ export default function Evaluate() {
         </div>
     );
 
+    const renderEmployeeReadOnlyTab = (title, subtitle, content, placeholder) => (
+        <div className="card" style={{ marginBottom: '32px', padding: '24px' }}>
+            <div className="card-title" style={{ marginBottom: '8px', color: 'var(--blue-light)' }}>👤 Employee's {title}</div>
+            <p className="section-subtitle" style={{ marginBottom: '24px' }}>{subtitle}</p>
+            <div style={{
+                padding: '20px',
+                background: 'rgba(56, 189, 248, 0.05)',
+                border: '1px solid rgba(56, 189, 248, 0.1)',
+                borderRadius: '12px',
+                minHeight: '120px',
+                fontSize: '14px',
+                lineHeight: '1.6',
+                color: content ? 'var(--text-primary)' : 'var(--text-muted)',
+                fontStyle: content ? 'normal' : 'italic',
+                whiteSpace: 'pre-wrap'
+            }}>
+                {content || placeholder}
+            </div>
+        </div>
+    );
+
     const renderSummaryTab = () => (
         <div>
             <div className="card" style={{ marginBottom: '32px', padding: '24px' }}>
@@ -256,13 +243,48 @@ export default function Evaluate() {
             <div className="section-header">
                 <div>
                     <h2 className="section-title">Performance Evaluation</h2>
-                    <p className="section-subtitle">Reviewing performance for: <strong style={{ color: 'var(--purple)' }}>{emp?.name || 'Loading...'}</strong></p>
+                    <p className="section-subtitle">Reviewing performance for a specific cycle.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <button onClick={() => navigate('/manager')} className="btn btn-secondary" style={{ padding: '8px 16px' }}>
-                        ← Back to Team
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Employee</label>
+                        <select
+                            className="form-select btn-sm"
+                            style={{ minWidth: '180px', background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}
+                            value={selectedEmp}
+                            onChange={(e) => handleEmpChange(e.target.value)}
+                        >
+                            {!team.length && <option value="">No team members</option>}
+                            {team.map(member => (
+                                <option key={member.id} value={member.id}>{member.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Appraisal Cycle</label>
+                        <select
+                            className="form-select btn-sm"
+                            style={{ minWidth: '160px', background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}
+                            value={selectedCycleId}
+                            onChange={(e) => {
+                                setSelectedCycleId(e.target.value);
+                                setSaved(false);
+                                setHasEdited(false);
+                            }}
+                        >
+                            <option value="">Select Cycle...</option>
+                            {cycles.map(c => (
+                                <option key={c.id} value={c.id}>
+                                    {c.name} ({c.status})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <button onClick={() => navigate('/manager')} className="btn btn-secondary" style={{ padding: '8px 16px', alignSelf: 'flex-end', height: '36px' }}>
+                        ← Back
                     </button>
-                    {cycle && <span className="badge badge-green">{cycle.name}</span>}
                 </div>
             </div>
 
@@ -300,13 +322,15 @@ export default function Evaluate() {
 
                 {/* Content Area */}
                 <div style={{ flexGrow: 1 }}>
-                    {activeTab === 1 && renderGoalsTab()}
-                    {activeTab === 2 && renderCompetenciesTab()}
-                    {activeTab === 3 && renderSummaryTab()}
+                    {activeTab === 1 && renderCompetenciesTab()}
+                    {activeTab === 2 && renderEmployeeReadOnlyTab('Achievements', 'Significant accomplishments or evidence provided by the employee not covered by specific goals.', selfReview?.metadata?.achievements, 'No additional achievements provided.')}
+                    {activeTab === 3 && renderEmployeeReadOnlyTab('Learning & Development', 'Training completed or developmental aspirations noted by the employee.', selfReview?.metadata?.learning, 'No learning and development notes provided.')}
+                    {activeTab === 4 && renderEmployeeReadOnlyTab('Feedback', 'Feedback about the team, manager, or organizational processes.', selfReview?.metadata?.feedback, 'No feedback provided.')}
+                    {activeTab === 5 && renderSummaryTab()}
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', marginBottom: '40px' }}>
                         <button className="btn btn-secondary" disabled={activeTab === 1} onClick={() => setActiveTab(p => p - 1)}>← Previous</button>
-                        {activeTab < 3 && <button className="btn btn-primary" onClick={() => setActiveTab(p => p + 1)}>Next Section →</button>}
+                        {activeTab < 5 && <button className="btn btn-primary" onClick={() => setActiveTab(p => p + 1)}>Next Section →</button>}
                     </div>
                 </div>
             </div>

@@ -46,11 +46,11 @@ export default function SelfReview() {
 
     const RATING_OPTIONS = [
         { value: 0, label: 'Select Rating...' },
-        { value: 1, label: '1 — Outstanding' },
-        { value: 2, label: '2 — Exceeds Expectations' },
+        { value: 1, label: '1 — Poor' },
+        { value: 2, label: '2 — Needs Improvement' },
         { value: 3, label: '3 — Meets Expectations' },
-        { value: 4, label: '4 — Needs Improvement' },
-        { value: 5, label: '5 — Poor' }
+        { value: 4, label: '4 — Exceeds Expectations' },
+        { value: 5, label: '5 — Outstanding' }
     ];
 
     // Initialize cycle
@@ -194,7 +194,7 @@ export default function SelfReview() {
                                     <textarea
                                         className="form-input"
                                         placeholder="Supporting evidence..."
-                                        style={{ minHeight: '80px', width: '100%', fontSize: '13px' }}
+                                        style={{ minHeight: '80px', width: '100%', fontSize: '13px', color: isReadOnly ? 'var(--text-muted)' : 'inherit' }}
                                         disabled={isReadOnly}
                                         value={competencies[q.id]?.comment || ''}
                                         onChange={e => setCompetencies(p => ({
@@ -250,6 +250,7 @@ export default function SelfReview() {
             <p className="section-subtitle" style={{ marginBottom: '16px' }}>Provide feedback about the team, your manager, or organizational processes.</p>
             <textarea className="form-textarea" rows={10} placeholder="Type your feedback here..."
                 disabled={isReadOnly}
+                style={{ color: isReadOnly ? 'var(--text-muted)' : 'inherit' }}
                 value={feedback} onChange={e => setFeedback(e.target.value)} />
         </div>
     );
@@ -260,6 +261,7 @@ export default function SelfReview() {
             <p className="section-subtitle" style={{ marginBottom: '16px' }}>Significant accomplishments or evidence not covered by specific goals.</p>
             <textarea className="form-textarea" rows={10} placeholder="Document any extra wins..."
                 disabled={isReadOnly}
+                style={{ color: isReadOnly ? 'var(--text-muted)' : 'inherit' }}
                 value={achievements} onChange={e => setAchievements(e.target.value)} />
         </div>
     );
@@ -270,6 +272,7 @@ export default function SelfReview() {
             <p className="section-subtitle" style={{ marginBottom: '16px' }}>Track completed training or define future developmental aspirations.</p>
             <textarea className="form-textarea" rows={10} placeholder="Training completed, certifications, or desired skills..."
                 disabled={isReadOnly}
+                style={{ color: isReadOnly ? 'var(--text-muted)' : 'inherit' }}
                 value={learning} onChange={e => setLearning(e.target.value)} />
         </div>
     );
@@ -287,6 +290,7 @@ export default function SelfReview() {
                 <label className="form-label">Final Thoughts / Career Aspirations</label>
                 <textarea className="form-textarea" rows={4} placeholder="Where do you see yourself in the next 12 months?"
                     disabled={isReadOnly}
+                    style={{ color: isReadOnly ? 'var(--text-muted)' : 'inherit' }}
                     value={comments} onChange={e => setComments(e.target.value)} />
             </div>
 

@@ -7,7 +7,6 @@ import Icons from './Icons';
 // BASE LINKS - Available to ALL roles
 const BASE_LINKS = [
     { to: '/dashboard', label: 'Dashboard', icon: <Icons.Home /> },
-    { to: '/employee/goals', label: 'My Goals', icon: <Icons.Target /> },
     { to: '/employee/self-review', label: 'Self Review', icon: <Icons.FileText /> },
     { to: '/employee/results', label: 'My Results', icon: <Icons.Trophy /> },
 ];
@@ -64,8 +63,8 @@ export default function Layout({ children }) {
 
     const getPageTitle = () => {
         const all = [...HR_LINKS, ...MANAGER_LINKS, ...EMPLOYEE_LINKS, ...ADMIN_LINKS]; // duplicates are fine for find
-        const match = all.slice().reverse().find(l => 
-            location.pathname.startsWith(l.to) && 
+        const match = all.slice().reverse().find(l =>
+            location.pathname.startsWith(l.to) &&
             (l.to !== '/dashboard' || location.pathname === '/dashboard')
         );
         return match?.label || 'Techxl';
@@ -75,10 +74,8 @@ export default function Layout({ children }) {
         <div className="app-shell">
             <aside className="sidebar">
                 <div className="sidebar-logo">
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-                        <div style={{ width: '48px', height: '48px', overflow: 'hidden', borderRadius: '12px', display: 'flex', justifyContent: 'flex-start' }}>
-                            <img src={logo} alt="Logo" style={{ height: '48px', width: 'auto', maxWidth: 'none' }} />
-                        </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
+                        <img src={logo} alt="Logo" style={{ height: '32px', width: 'auto' }} />
                     </div>
                     <span>{ROLE_LABELS[currentUser?.role]}</span>
                 </div>
@@ -103,22 +100,7 @@ export default function Layout({ children }) {
                             <div className="user-role">{currentUser?.department}</div>
                         </div>
                     </div>
-                    <div className="theme-switcher">
-                        <button
-                            className={`theme-btn ${theme === 'dark' ? 'active' : ''}`}
-                            onClick={() => toggleTheme('dark')}
-                            title="Dark Mode"
-                        >
-                            <Icons.Moon /> Dark
-                        </button>
-                        <button
-                            className={`theme-btn ${theme === 'light' ? 'active' : ''}`}
-                            onClick={() => toggleTheme('light')}
-                            title="Light Mode"
-                        >
-                            <Icons.Sun /> White
-                        </button>
-                    </div>
+
                     <button className="logout-btn" onClick={handleLogout}>🚪 Sign Out</button>
                 </div>
             </aside>
@@ -126,9 +108,18 @@ export default function Layout({ children }) {
             <div className="main-content">
                 <div className="topbar">
                     <h1>{getPageTitle()}</h1>
-                    <span className="topbar-meta">
-                        {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <span className="topbar-meta">
+                            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        </span>
+                        <button
+                            className="theme-toggle-btn"
+                            onClick={() => toggleTheme(theme === 'dark' ? 'light' : 'dark')}
+                            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+                        >
+                            {theme === 'dark' ? <Icons.Sun /> : <Icons.Moon />}
+                        </button>
+                    </div>
                 </div>
                 <div className="page-body">{children}</div>
             </div>

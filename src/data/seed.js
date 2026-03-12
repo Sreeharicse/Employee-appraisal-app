@@ -70,16 +70,9 @@ export const PERFORMANCE_CATEGORIES = [
 ];
 
 export function calculateScore(goals, goalRatings, workRating, behaviorRating) {
-    const totalWeight = goals.reduce((sum, g) => sum + g.weightage, 0);
-    if (totalWeight === 0) return 0;
-    let goalScore = 0;
-    goals.forEach(g => {
-        const r = goalRatings[g.id] || 0;
-        goalScore += (r / 5) * 100 * (g.weightage / totalWeight);
-    });
-    const workScore = (workRating / 5) * 100;
-    const behaviorScore = (behaviorRating / 5) * 100;
-    return Math.round(goalScore * 0.6 + workScore * 0.2 + behaviorScore * 0.2);
+    const workScore = (workRating / 5) * 100 || 0;
+    const behaviorScore = (behaviorRating / 5) * 100 || 0;
+    return Math.round(workScore * 0.5 + behaviorScore * 0.5);
 }
 
 export function getCategory(score) {

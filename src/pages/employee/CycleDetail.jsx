@@ -16,7 +16,7 @@ export default function CycleDetail() {
             <div className="card" style={{ padding: '40px', textAlign: 'center' }}>
                 <h3 style={{ color: 'var(--text-primary)' }}>Cycle not found</h3>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>The appraisal cycle you are looking for does not exist.</p>
-                <button className="btn btn-primary" onClick={() => navigate('/employee')}>Back to Dashboard</button>
+                <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
             </div>
         );
     }
@@ -27,8 +27,7 @@ export default function CycleDetail() {
     const scoreData = getScore(currentUser.id, cycleId);
 
     const getNextStep = () => {
-        if (goals.length === 0) return { title: 'Waiting for Goals', description: 'Your manager needs to assign goals for this cycle before you can proceed.', actionPath: null, statusType: 'waiting' };
-        if (!selfReview) return { title: 'Complete Self-Review', description: 'Goals are assigned! It is time to reflect on your performance and submit your self-review.', actionPath: '/employee/self-review', actionLabel: 'Start Self-Review', statusType: 'pending' };
+        if (!selfReview) return { title: 'Complete Self-Review', description: 'It is time to reflect on your performance and submit your self-review.', actionPath: '/employee/self-review', actionLabel: 'Start Self-Review', statusType: 'pending' };
         if (!evaluation) return { title: 'Awaiting Manager Evaluation', description: 'Your self-review is submitted. Your manager will evaluate your performance soon.', actionPath: null, statusType: 'waiting' };
         if (evaluation.status === 'pending_approval') return { title: 'Awaiting HR Approval', description: 'Your manager has submitted the evaluation. It is now pending final approval from HR.', actionPath: null, statusType: 'waiting' };
         return { title: 'Check Your Results', description: 'Your appraisal is complete! You can now view your final score and feedback.', actionPath: '/employee/results', actionLabel: 'View Results', statusType: 'complete' };
@@ -37,7 +36,6 @@ export default function CycleDetail() {
     const nextStep = getNextStep();
 
     const statusSteps = [
-        { label: 'Goals Assigned', done: goals.length > 0 },
         { label: 'Self Review', done: !!selfReview },
         { label: 'Manager Eval', done: !!evaluation },
         { label: 'HR Approved', done: evaluation?.status === 'approved' },
@@ -48,7 +46,7 @@ export default function CycleDetail() {
             <div className="section-header">
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <Link to="/employee" className="btn-icon" style={{ padding: '4px', display: 'flex' }}>
+                        <Link to="/dashboard" className="btn-icon" style={{ padding: '4px', display: 'flex' }}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
                         </Link>
                         <h2 className="section-title" style={{ margin: 0 }}>{cycle.name}</h2>
@@ -85,12 +83,6 @@ export default function CycleDetail() {
             </div>
 
             <div className="kpi-grid" style={{ marginBottom: '24px' }}>
-                <div className="kpi-card" style={{ '--accent-color': '#7c3aed' }}>
-                    <div className="kpi-icon"><Icons.Target /></div>
-                    <div className="kpi-label">Goals Assigned</div>
-                    <div className="kpi-value">{goals.length}</div>
-                    <div className="kpi-change">for this cycle</div>
-                </div>
                 <div className="kpi-card" style={{ '--accent-color': selfReview ? '#10b981' : '#f59e0b' }}>
                     <div className="kpi-icon">{selfReview ? <Icons.Check /> : <Icons.FileText />}</div>
                     <div className="kpi-label">Self Review</div>
@@ -114,7 +106,7 @@ export default function CycleDetail() {
             </div>
 
             {/* Action alerts */}
-            {!selfReview && goals.length > 0 && (
+            {!selfReview && (
                 <div className="alert alert-warning" style={{ borderRadius: '12px' }}>
                     <Icons.FileText style={{ width: '20px', height: '20px' }} />
                     <span>Your self-review is pending! Please submit it from the <b>Self Review</b> page.</span>
@@ -127,28 +119,7 @@ export default function CycleDetail() {
                 </div>
             )}
 
-            {/* Goals preview */}
-            {goals.length > 0 && (
-                <div className="card">
-                    <div className="card-title" style={{ marginBottom: '16px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Icons.Target /> My Goals (Quick View)
-                    </div>
-                    <div style={{ display: 'grid', gap: '2px' }}>
-                        {goals.map(g => (
-                            <div key={g.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
-                                <div>
-                                    <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>{g.title}</div>
-                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>{g.description.slice(0, 100)}{g.description.length > 100 ? '...' : ''}</div>
-                                </div>
-                                <div style={{ display: 'flex', gap: '8px', flexShrink: 0, marginLeft: '20px' }}>
-                                    <span className="badge badge-purple" style={{ borderRadius: '6px' }}>{g.weightage}%</span>
-                                    <span className="badge badge-gray" style={{ borderRadius: '6px' }}>{g.deadline}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+
         </div>
     );
 }

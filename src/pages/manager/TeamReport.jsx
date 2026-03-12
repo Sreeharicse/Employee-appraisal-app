@@ -2,9 +2,19 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 
 export default function TeamReport() {
-    const { currentUser, users, getActiveCycle, cycles, goals, evaluations, getScore } = useApp();
+    const { currentUser, users, getActiveCycle, cycles, goals, evaluations, selfReviews, getScore } = useApp();
+    const [selectedCycleId, setSelectedCycleId] = React.useState('');
     const team = users.filter(u => u.managerId === currentUser.id);
-    const cycle = getActiveCycle();
+
+    // Auto-select active cycle initially
+    React.useEffect(() => {
+        if (!selectedCycleId && cycles.length > 0) {
+            const active = getActiveCycle() || cycles[0];
+            setSelectedCycleId(active?.id || '');
+        }
+    }, [cycles, selectedCycleId, getActiveCycle]);
+
+    const cycle = cycles.find(c => String(c.id) === String(selectedCycleId));
 
     return (
         <div>
@@ -13,7 +23,20 @@ export default function TeamReport() {
                     <h2 className="section-title">Team Report</h2>
                     <p className="section-subtitle">Performance summary for your team</p>
                 </div>
-                {cycle && <span className="badge badge-green">{cycle.name}</span>}
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <select
+                        className="form-select"
+                        style={{ minWidth: '200px' }}
+                        value={selectedCycleId}
+                        onChange={(e) => setSelectedCycleId(e.target.value)}
+                    >
+                        {cycles.map(c => (
+                            <option key={c.id} value={c.id}>
+                                {c.name} ({c.status})
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             {!cycle && <div className="alert alert-warning">⚠️ No active cycle found.</div>}
@@ -23,15 +46,16 @@ export default function TeamReport() {
                     <div className="table-header"><h3>Performance Summary</h3></div>
                     <table>
                         <thead>
-                            <tr><th>Employee</th><th>Goals</th><th>Self Review</th><th>Evaluation</th><th>Score</th><th>Category</th></tr>
+                            <tr><th>Employee</th><th>Self Review</th><th>Evaluation</th><th>Score</th><th>Category</th></tr>
                         </thead>
                         <tbody>
                             {team.length === 0 && (
-                                <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>No team members assigned.</td></tr>
+                                <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>No team members assigned.</td></tr>
                             )}
                             {team.map(emp => {
-                                const empGoals = goals.filter(g => g.employeeId === emp.id && g.cycleId === cycle.id);
+
                                 const ev = evaluations.find(e => e.employeeId === emp.id && e.cycleId === cycle.id);
+                                const hasSelfReview = selfReviews.some(sr => sr.employeeId === emp.id && sr.cycleId === cycle.id);
                                 const scoreData = getScore(emp.id, cycle.id);
                                 return (
                                     <tr key={emp.id}>
@@ -44,10 +68,10 @@ export default function TeamReport() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><span className="badge badge-blue">{empGoals.length}</span></td>
+
                                         <td>
-                                            <span className={`badge ${ev ? 'badge-green' : 'badge-gray'}`}>
-                                                {ev ? '✓ Reviewed' : '⏳ Pending'}
+                                            <span className={`badge ${hasSelfReview ? 'badge-green' : 'badge-gray'}`}>
+                                                {hasSelfReview ? '✓ Submitted' : '⏳ Pending'}
                                             </span>
                                         </td>
                                         <td>

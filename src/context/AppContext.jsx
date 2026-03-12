@@ -6,16 +6,10 @@ import { encrypt, decrypt } from '../utils/encryption';
 const AppContext = createContext(null);
 
 export function calculateScore(goals, goalRatings, workRating, behaviorRating) {
-    const totalWeight = goals.reduce((sum, g) => sum + g.weightage, 0);
-    if (totalWeight === 0) return 0;
-    let goalScore = 0;
-    goals.forEach(g => {
-        const r = goalRatings[g.id] || 0;
-        goalScore += (r / 5) * 100 * (g.weightage / totalWeight);
-    });
-    const workScore = (workRating / 5) * 100;
-    const behaviorScore = (behaviorRating / 5) * 100;
-    return Math.round(goalScore * 0.6 + workScore * 0.2 + behaviorScore * 0.2);
+    // Goals are no longer factored into the final score
+    const workScore = (workRating / 5) * 100 || 0;
+    const behaviorScore = (behaviorRating / 5) * 100 || 0;
+    return Math.round(workScore * 0.5 + behaviorScore * 0.5);
 }
 
 export function getCategory(score) {
@@ -107,7 +101,7 @@ export function AppProvider({ children }) {
             status: g.status,
         })));
         setSelfReviews((reviewsData || []).map(r => {
-            let metadata = { status: 'draft' }; 
+            let metadata = { status: 'draft' };
             try {
                 if (r.comments && r.comments.startsWith('{')) {
                     metadata = JSON.parse(r.comments);
@@ -133,8 +127,8 @@ export function AppProvider({ children }) {
                 employeeId: r.employee_id,
                 summary: r.summary,
                 goalRatings: r.goal_ratings || {},
-                comments: metadata.comments || r.comments, 
-                metadata: metadata, 
+                comments: metadata.comments || r.comments,
+                metadata: metadata,
                 submittedAt: r.submitted_at,
                 status: metadata.status || 'submitted'
             };
@@ -730,7 +724,7 @@ export function AppProvider({ children }) {
                 };
             });
         }
-        
+
         const metadataForStorage = {
             comments: encrypt(review.comments),
             progress: review.progress || {},
@@ -818,7 +812,7 @@ export function AppProvider({ children }) {
                 };
             });
         }
-        
+
         const metadataForStorage = {
             feedback: encrypt(evaluation.feedback),
             competencies: encryptedCompetencies

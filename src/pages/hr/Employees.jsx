@@ -3,7 +3,8 @@ import { useApp } from '../../context/AppContext';
 import Icons from '../../components/Icons';
 
 export default function Employees() {
-    const { users, addUser, updateUser, deleteUser } = useApp();
+    const { currentUser, users, addUser, updateUser, deleteUser } = useApp();
+    const isManager = currentUser.role === 'manager';
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState({ name: '', email: '', role: 'employee', department: '', managerId: '' });
@@ -36,7 +37,9 @@ export default function Employees() {
                     <h2 className="section-title">Employee Management</h2>
                     <p className="section-subtitle">Manage all employees, departments, and reporting relationships</p>
                 </div>
-                <button className="btn btn-primary" onClick={openAdd}>+ Add Employee</button>
+                {!isManager && (
+                    <button className="btn btn-primary" onClick={openAdd}>+ Add Employee</button>
+                )}
             </div>
 
             <div className="table-container">
@@ -46,7 +49,14 @@ export default function Employees() {
                 </div>
                 <table>
                     <thead>
-                        <tr><th>Employee</th><th>Email</th><th>Role</th><th>Department</th><th>Manager</th><th>Actions</th></tr>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Manager</th>
+                            {!isManager && <th>Actions</th>}
+                        </tr>
                     </thead>
                     <tbody>
                         {filtered.map(u => {
@@ -63,16 +73,18 @@ export default function Employees() {
                                     <td><span className={`badge ${ROLE_BADGE[u.role]}`}>{u.role}</span></td>
                                     <td>{u.department || '—'}</td>
                                     <td>{mgr ? mgr.name : '—'}</td>
-                                    <td>
-                                        <div style={{ display: 'flex', gap: '6px' }}>
-                                            <button className="btn btn-secondary btn-sm" onClick={() => openEdit(u)}>
-                                                <Icons.Edit style={{ marginRight: '4px' }} /> Edit
-                                            </button>
-                                            <button className="btn btn-danger btn-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { if (window.confirm('Delete this user?')) deleteUser(u.id); }}>
-                                                <Icons.Trash />
-                                            </button>
-                                        </div>
-                                    </td>
+                                    {!isManager && (
+                                        <td>
+                                            <div style={{ display: 'flex', gap: '6px' }}>
+                                                <button className="btn btn-secondary btn-sm" onClick={() => openEdit(u)}>
+                                                    <Icons.Edit style={{ marginRight: '4px' }} /> Edit
+                                                </button>
+                                                <button className="btn btn-danger btn-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { if (window.confirm('Delete this user?')) deleteUser(u.id); }}>
+                                                    <Icons.Trash />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    )}
                                 </tr>
                             );
                         })}

@@ -16,12 +16,12 @@ export function encrypt(text, shift = DEFAULT_SHIFT) {
     if (!text || typeof text !== 'string') return text;
     // Don't double encrypt
     if (text.startsWith(PREFIX)) return text;
-    
+
     const cipher = text
         .split('')
         .map(ch => String.fromCharCode(ch.charCodeAt(0) + shift))
         .join('');
-        
+
     return PREFIX + cipher;
 }
 
@@ -35,7 +35,7 @@ export function decrypt(text, shift = DEFAULT_SHIFT) {
     if (!text || typeof text !== 'string') return text;
     // If it doesn't have the prefix, it's plain text (not encrypted), so return as is!
     if (!text.startsWith(PREFIX)) return text;
-    
+
     const cipher = text.slice(PREFIX.length);
     return cipher
         .split('')

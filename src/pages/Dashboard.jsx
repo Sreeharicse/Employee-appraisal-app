@@ -2,17 +2,24 @@ import React, { useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import Icons from '../components/Icons';
 import { useNavigate } from 'react-router-dom';
-import NextStepsCard from '../components/NextStepsCard';
 
 export default function Dashboard() {
-    const { currentUser, getActiveCycle, goals, selfReviews, evaluations, users, approvals, resetAndSeedFakeData } = useApp();
+    const { currentUser, cycles, getActiveCycle, goals, selfReviews, evaluations, users, approvals, resetAndSeedFakeData } = useApp();
     const navigate = useNavigate();
     const activeCycle = getActiveCycle();
 
+    const getStatusBadge = (status) => {
+        switch (status) {
+            case 'active': return 'badge-blue';
+            case 'completed': return 'badge-green';
+            case 'draft': return 'badge-gray';
+            default: return 'badge-gray';
+        }
+    };
+
     // -- Personal Stats (All Roles)
-    const myGoals = goals.filter(g => g.employeeId === currentUser.id);
-    const completedGoals = myGoals.filter(g => g.status === 'completed' || g.status === 'approved');
     const hasSelfReview = selfReviews.some(sr => sr.employeeId === currentUser.id && sr.cycleId === activeCycle?.id);
+    const myEvaluation = evaluations.find(e => e.employeeId === currentUser.id && e.cycleId === activeCycle?.id);
 
     // -- Manager Stats
     const teamMembers = useMemo(() => users.filter(u => u.managerId === currentUser.id), [users, currentUser]);
@@ -55,56 +62,92 @@ export default function Dashboard() {
             </div>
 
             {/* ----- ALL ROLES: Personal Dashboard ----- */}
-            <div className="card" style={{ marginBottom: '24px' }}>
-                <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Icons.Target style={{ color: 'var(--blue-light)' }} /> My Core Objectives
-                </div>
-                
-                <div className="grid grid-3" style={{ marginTop: '20px' }}>
-                    <div className="kpi-card" style={{ '--accent-color': 'var(--blue-light)' }}>
-                        <div className="kpi-icon"><Icons.Target /></div>
-                        <div className="kpi-label">Total Goals</div>
-                        <div className="kpi-value">{myGoals.length}</div>
-                        <div className="kpi-change">Active this cycle</div>
+            <div className="grid grid-3" style={{ marginBottom: '24px' }}>
+                <div className="kpi-card" style={{ '--accent-color': 'var(--blue-light)' }}>
+                    <div className="kpi-icon"><Icons.Cycles /></div>
+                    <div className="kpi-label">Active Cycle</div>
+                    <div className="kpi-value" style={{ fontSize: '22px', marginTop: '8px' }}>
+                        {activeCycle ? activeCycle.name : 'None'}
                     </div>
-                    <div className="kpi-card" style={{ '--accent-color': 'var(--green)' }}>
-                        <div className="kpi-icon"><Icons.Check /></div>
-                        <div className="kpi-label">Completed</div>
-                        <div className="kpi-value">{completedGoals.length}</div>
-                        <div className="kpi-change">{myGoals.length > 0 ? Math.round((completedGoals.length / myGoals.length) * 100) : 0}% success rate</div>
-                    </div>
-                    <div className="kpi-card" style={{ '--accent-color': 'var(--purple)' }}>
-                        <div className="kpi-icon"><Icons.FileText /></div>
-                        <div className="kpi-label">Self Review</div>
-                        <div className="kpi-value">{hasSelfReview ? 'Submitted' : 'Pending'}</div>
-                        <div className="kpi-change">Current status</div>
+                    <div className="kpi-change">
+                        {activeCycle ? `Ends ${activeCycle.endDate}` : 'No active cycle'}
                     </div>
                 </div>
-                
-                <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
-                    <button className="btn btn-outline" onClick={() => navigate('/employee/goals')}>View My Goals</button>
-                    {!hasSelfReview && <button className="btn btn-primary" onClick={() => navigate('/employee/self-review')}>Start Self Review</button>}
+                <div className="kpi-card" style={{ '--accent-color': 'var(--green)' }}>
+                    <div className="kpi-icon"><Icons.Check /></div>
+                    <div className="kpi-label">Manager Eval</div>
+                    <div className="kpi-value">{myEvaluation ? 'Completed' : 'Pending'}</div>
+                    <div className="kpi-change">Current status</div>
+                </div>
+                <div className="kpi-card" style={{ '--accent-color': 'var(--purple)' }}>
+                    <div className="kpi-icon"><Icons.FileText /></div>
+                    <div className="kpi-label">Self Review</div>
+                    <div className="kpi-value">{hasSelfReview ? 'Submitted' : 'Pending'}</div>
+                    <div className="kpi-change">Current status</div>
                 </div>
             </div>
 
-            <div className="grid grid-2" style={{ gap: '24px', marginBottom: '24px' }}>
-                <NextStepsCard />
-                
-                {activeCycle && (
-                    <div className="card">
-                        <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Icons.Cycles style={{ color: 'var(--purple)' }} /> Active Cycle
-                        </div>
-                        <div style={{ marginTop: '20px', padding: '16px', background: 'var(--bg-card-hover)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                            <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>{activeCycle.name}</h3>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '16px' }}>
-                                <Icons.Calendar style={{ width: '14px', height: '14px' }} />
-                                {new Date(activeCycle.startDate).toLocaleDateString()} - {new Date(activeCycle.endDate).toLocaleDateString()}
-                            </div>
-                            <div className="badge badge-success">Active Phase</div>
-                        </div>
-                    </div>
-                )}
+            {!hasSelfReview && (
+                <div style={{ marginBottom: '24px' }}>
+                    <button className="btn btn-primary" onClick={() => navigate('/employee/self-review')}>Start Self Review</button>
+                </div>
+            )}
+
+            {/* ----- ALL ROLES: Appraisal Cycles List ----- */}
+            <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: '24px' }}>
+                <div style={{ padding: '20px', borderBottom: '1px solid var(--border)' }}>
+                    <h3 style={{ margin: 0, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Icons.Cycles style={{ color: 'var(--purple)' }} /> All Appraisal Cycles
+                    </h3>
+                </div>
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th>Cycle Name</th>
+                            <th>Period</th>
+                            <th>Status</th>
+                            <th style={{ textAlign: 'right' }}>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {cycles.length > 0 ? (
+                            cycles.map(cycle => (
+                                <tr key={cycle.id} onClick={() => navigate(`/employee/cycle/${cycle.id}`)} style={{ cursor: 'pointer' }}>
+                                    <td>
+                                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cycle.name}</div>
+                                    </td>
+                                    <td>
+                                        <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                                            {new Date(cycle.startDate).toLocaleDateString()} - {new Date(cycle.endDate).toLocaleDateString()}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span className={`badge ${getStatusBadge(cycle.status)}`} style={{ textTransform: 'capitalize' }}>
+                                            {cycle.status}
+                                        </span>
+                                    </td>
+                                    <td style={{ textAlign: 'right' }}>
+                                        <button
+                                            className="btn btn-outline btn-sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigate(`/employee/cycle/${cycle.id}`);
+                                            }}
+                                        >
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+                                    No appraisal cycles found.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
 
             {/* ----- MANAGER / ADMIN: Team Stats ----- */}
@@ -113,7 +156,7 @@ export default function Dashboard() {
                     <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <Icons.Users style={{ color: 'var(--green)' }} /> My Team Overview
                     </div>
-                    
+
                     <div className="grid grid-3" style={{ marginTop: '20px' }}>
                         <div className="kpi-card" style={{ '--accent-color': 'var(--text-primary)' }}>
                             <div className="kpi-icon"><Icons.Users /></div>
@@ -141,7 +184,7 @@ export default function Dashboard() {
                     <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <Icons.PieChart style={{ color: 'var(--purple)' }} /> System Overview (HR)
                     </div>
-                    
+
                     <div className="grid grid-3" style={{ marginTop: '20px' }}>
                         <div className="kpi-card" style={{ '--accent-color': 'var(--text-primary)' }}>
                             <div className="kpi-icon"><Icons.Users /></div>
@@ -156,7 +199,7 @@ export default function Dashboard() {
                             <div className="kpi-change">Awaiting HR review</div>
                         </div>
                     </div>
-                    
+
                     <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
                         <button className="btn btn-primary" onClick={() => navigate('/hr/approvals')}>Review Approvals</button>
                     </div>

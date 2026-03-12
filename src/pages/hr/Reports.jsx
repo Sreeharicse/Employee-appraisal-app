@@ -8,9 +8,19 @@ import {
 const COLORS = ['#10b981', '#06b6d4', '#7c3aed', '#f59e0b', '#ef4444'];
 
 export default function Reports() {
-    const { users, cycles, evaluations, goals, getScore, getCategory } = useApp();
+    const { users, cycles, evaluations, goals, getScore } = useApp();
+    const [selectedCycleId, setSelectedCycleId] = React.useState('');
     const employees = users.filter(u => u.role === 'employee');
-    const activeCycle = cycles.find(c => c.status === 'active') || cycles[0];
+
+    // Auto-select active cycle initially
+    React.useEffect(() => {
+        if (!selectedCycleId && cycles.length > 0) {
+            const active = cycles.find(c => c.status === 'active') || cycles[0];
+            setSelectedCycleId(active.id);
+        }
+    }, [cycles, selectedCycleId]);
+
+    const activeCycle = cycles.find(c => String(c.id) === String(selectedCycleId));
 
     const employeeScores = employees.map(emp => {
         const scoreData = activeCycle ? getScore(emp.id, activeCycle.id) : null;
@@ -51,7 +61,20 @@ export default function Reports() {
                     <h2 className="section-title">Performance Reports</h2>
                     <p className="section-subtitle">Cycle analytics, scores, and performance distribution</p>
                 </div>
-                {activeCycle && <span className="badge badge-purple">{activeCycle.name}</span>}
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <select
+                        className="form-select"
+                        style={{ minWidth: '200px' }}
+                        value={selectedCycleId}
+                        onChange={(e) => setSelectedCycleId(e.target.value)}
+                    >
+                        {cycles.map(c => (
+                            <option key={c.id} value={c.id}>
+                                {c.name} ({c.status})
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             {employeeScores.length === 0 && (
@@ -96,11 +119,11 @@ export default function Reports() {
                         <div className="table-header"><h3>Individual Reports</h3></div>
                         <table>
                             <thead>
-                                <tr><th>Employee</th><th>Department</th><th>Goals</th><th>Score</th><th>Category</th><th>Status</th></tr>
+                                <tr><th>Employee</th><th>Department</th><th>Score</th><th>Category</th><th>Status</th></tr>
                             </thead>
                             <tbody>
                                 {employeeScores.map(emp => {
-                                    const empGoals = activeCycle ? goals.filter(g => g.employeeId === emp.id && g.cycleId === activeCycle.id) : [];
+
                                     const ev = evaluations.find(e => e.employeeId === emp.id && e.cycleId === activeCycle?.id);
                                     return (
                                         <tr key={emp.id}>
@@ -111,7 +134,7 @@ export default function Reports() {
                                                 </div>
                                             </td>
                                             <td>{emp.department}</td>
-                                            <td>{empGoals.length} goals</td>
+
                                             <td>
                                                 <div style={{ fontWeight: 800, fontSize: '18px', color: 'var(--purple-light)' }}>
                                                     {emp.scoreData.score}

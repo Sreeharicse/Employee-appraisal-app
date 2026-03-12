@@ -29,17 +29,15 @@ export default function HRCycleDetail() {
     };
 
     const statusSteps = [
-        { label: 'Goals Assigned', done: true },
         { label: 'Self Review', done: true },
-        { label: 'Manager Eval', done: true },
-        { label: 'HR Approved', done: false },
+        { label: 'Manager Evaluation', done: true },
+        { label: 'Admin Approved', done: false },
     ];
 
     const employees = users.filter(u => u.role === 'employee');
     const cycleEvaluations = evaluations.filter(e => e.cycleId === cycleId);
 
     // Summary metrics for HR view
-    const goalsCount = 1; // Template value
     const selfReviewStatus = 'Submitted';
     const evaluationStatus = 'pending approval';
     const score = 52;
@@ -87,12 +85,6 @@ export default function HRCycleDetail() {
             </div>
 
             <div className="kpi-grid" style={{ marginBottom: '24px' }}>
-                <div className="kpi-card" style={{ '--accent-color': '#7c3aed' }}>
-                    <div className="kpi-icon"><Icons.Target /></div>
-                    <div className="kpi-label">Goals Assigned</div>
-                    <div className="kpi-value">{goalsCount}</div>
-                    <div className="kpi-change" style={{ color: '#10b981' }}>for this cycle</div>
-                </div>
                 <div className="kpi-card" style={{ '--accent-color': '#10b981' }}>
                     <div className="kpi-icon"><Icons.Check /></div>
                     <div className="kpi-label">Self Review</div>

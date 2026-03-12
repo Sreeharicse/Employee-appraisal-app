@@ -63,7 +63,7 @@ export default function Results() {
             </div>
 
             {/* Score Hero */}
-            <div className="card" style={{ marginBottom: '32px', background: 'white', border: '1px solid #e2e8f0', boxShadow: '0 10px 40px rgba(0,0,0,0.03)' }}>
+            <div className="card" style={{ marginBottom: '32px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '32px', flexWrap: 'wrap' }}>
                     <div style={{ textAlign: 'center' }}>
                         <div style={{
@@ -73,9 +73,9 @@ export default function Results() {
                         }}>
                             <div style={{
                                 width: '92px', height: '92px', borderRadius: '50%',
-                                background: 'white', display: 'flex', flexDirection: 'column',
+                                background: 'var(--bg-card)', display: 'flex', flexDirection: 'column',
                                 alignItems: 'center', justifyContent: 'center', position: 'absolute',
-                                boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.05)'
+                                boxShadow: 'var(--nm-shadow-in-sm)'
                             }}>
                                 <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-primary)' }}>{scoreData.score}</div>
                                 <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>/ 100</div>
@@ -101,48 +101,23 @@ export default function Results() {
 
             <div className="grid-2" style={{ marginBottom: '24px', gap: '24px' }}>
                 {/* Score Breakdown */}
-                <div className="card">
-                    <div className="card-title" style={{ marginBottom: '20px', color: 'var(--text-primary)' }}>1. Component Breakdown</div>
+                <div className="card" style={{ gridColumn: '1 / -1' }}>
+                    <div className="card-title" style={{ marginBottom: '20px', color: 'var(--text-primary)' }}>Component Breakdown</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
-                                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Goal Achievement (60%)</span>
-                                <span style={{ fontWeight: 700, color: 'var(--purple)' }}>{Math.round(scoreData.score * 0.6)} pts</span>
-                            </div>
-                            <div className="progress-bar" style={{ height: '8px' }}><div className="progress-fill" style={{ width: `${scoreData.score}%` }} /></div>
-                        </div>
-                        <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
-                                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Work Performance (20%)</span>
+                                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Work Performance</span>
                                 <span style={{ fontWeight: 700, color: 'var(--indigo)' }}>{ev.workPerformanceRating}/5</span>
                             </div>
                             <div className="progress-bar" style={{ height: '8px' }}><div className="progress-fill" style={{ width: `${(ev.workPerformanceRating / 5) * 100}%`, background: 'var(--indigo)' }} /></div>
                         </div>
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
-                                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Professional Behavior (20%)</span>
+                                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Professional Behavior</span>
                                 <span style={{ fontWeight: 700, color: 'var(--cyan)' }}>{ev.behavioralRating}/5</span>
                             </div>
                             <div className="progress-bar" style={{ height: '8px' }}><div className="progress-fill" style={{ width: `${(ev.behavioralRating / 5) * 100}%`, background: 'var(--cyan)' }} /></div>
                         </div>
-                    </div>
-                </div>
-
-                {/* Goal Detail */}
-                <div className="card">
-                    <div className="card-title" style={{ marginBottom: '20px', color: 'var(--text-primary)' }}>2. Individual Goal Ratings</div>
-                    <div style={{ display: 'grid', gap: '16px' }}>
-                        {goals.map(g => (
-                            <div key={g.id}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
-                                    <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{g.title}</span>
-                                    <span style={{ fontWeight: 700, color: 'var(--purple-dark)' }}>{ev.goalRatings?.[g.id] || 0} / 5</span>
-                                </div>
-                                <div className="progress-bar" style={{ height: '4px' }}>
-                                    <div className="progress-fill" style={{ width: `${((ev.goalRatings?.[g.id] || 0) / 5) * 100}%` }} />
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>
@@ -151,20 +126,14 @@ export default function Results() {
             <div className="card" style={{ marginBottom: '24px' }}>
                 <div className="card-title" style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>3. Evaluator's Constructive Feedback</div>
                 <div style={{
-                    padding: '20px', background: '#f8fafc', borderRadius: '12px',
-                    fontSize: '14px', lineHeight: '1.7', color: '#334155', border: '1px solid #f1f5f9'
+                    padding: '20px', background: 'var(--bg-secondary)', borderRadius: '12px',
+                    fontSize: '14px', lineHeight: '1.7', color: 'var(--text-secondary)', border: '1px solid var(--border)'
                 }}>
                     {ev.feedback || 'Your manager has not provided detailed written feedback for this cycle.'}
                 </div>
             </div>
 
-            {/* Self review summary */}
-            {selfReview && (
-                <div className="card" style={{ background: '#ecfeff', border: '1px solid #0891b233' }}>
-                    <div className="card-title" style={{ marginBottom: '10px', color: 'var(--cyan)' }}>📝 Your Self-Review Overview</div>
-                    <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#164e63' }}>{selfReview.summary}</p>
-                </div>
-            )}
+
         </div>
     );
 }

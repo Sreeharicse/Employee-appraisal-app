@@ -35,7 +35,6 @@ export default function Approvals() {
                     <div style={{ display: 'inline-flex', flexDirection: 'column', textAlign: 'left', gap: '8px', fontSize: '13px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Icons.Check style={{ color: 'var(--green-light)', width: '14px' }} /> <b>Cycle Active?</b> Ensure a cycle is active in <a href="/hr/cycles" style={{ color: 'var(--primary)' }}>Cycles</a></div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Icons.Check style={{ color: 'var(--green-light)', width: '14px' }} /> <b>Managers Assigned?</b> Employees must have reporting managers in <a href="/hr/employees" style={{ color: 'var(--primary)' }}>Employees</a></div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Icons.Check style={{ color: 'var(--green-light)', width: '14px' }} /> <b>Goals Set?</b> Assign goals to employees in <a href="/hr/goals" style={{ color: 'var(--primary)' }}>Goals</a></div>
                     </div>
                 </div>
             )}
@@ -66,24 +65,7 @@ export default function Approvals() {
                             )}
                         </div>
 
-                        {/* Goal Ratings */}
-                        <div style={{ marginBottom: '12px' }}>
-                            <div className="card-title" style={{ marginBottom: '8px' }}>Goal Ratings</div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                {empGoals.map(g => (
-                                    <div key={g.id} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '8px 12px', minWidth: '160px' }}>
-                                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '2px' }}>{g.title}</div>
-                                        <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            {[...Array(5)].map((_, i) => (
-                                                <Icons.Star key={i} style={{ width: '12px', height: '12px', color: i < (ev.goalRatings?.[g.id] || 0) ? 'var(--blue-light)' : 'var(--text-muted)', fill: i < (ev.goalRatings?.[g.id] || 0) ? 'currentColor' : 'none' }} />
-                                            ))}
-                                            <span style={{ marginLeft: '4px' }}>{ev.goalRatings?.[g.id] || 0}/5</span>
-                                        </div>
-                                        <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Weight: {g.weightage}%</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                             <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '10px 14px' }}>

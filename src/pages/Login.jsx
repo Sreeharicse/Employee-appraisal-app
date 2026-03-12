@@ -45,8 +45,8 @@ export default function Login() {
     return (
         <div className="ms-auth-container">
             <div className="ms-auth-card">
-                <div style={{ width: '80px', height: '80px', overflow: 'hidden', borderRadius: '16px', display: 'flex', justifyContent: 'flex-start', marginBottom: '24px' }}>
-                    <img src={logo} alt="Logo" style={{ height: '80px', width: 'auto', maxWidth: 'none' }} />
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+                    <img src={logo} alt="Logo" style={{ height: '48px', width: 'auto' }} />
                 </div>
 
                 <h1 className="ms-auth-title" style={{ marginBottom: '32px' }}>Sign In</h1>
@@ -70,10 +70,10 @@ export default function Login() {
                 <div style={{ marginTop: '32px', width: '100%', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
                     <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '16px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>Developer Testing</p>
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <button onClick={() => loginAsFake('admin')} className="btn btn-secondary" style={{ flex: '1 1 40%' }}>Admin</button>
-                        <button onClick={() => loginAsFake('hr')} className="btn btn-secondary" style={{ flex: '1 1 40%' }}>HR</button>
-                        <button onClick={() => loginAsFake('manager')} className="btn btn-secondary" style={{ flex: '1 1 40%' }}>Manager</button>
-                        <button onClick={() => loginAsFake('employee')} className="btn btn-secondary" style={{ flex: '1 1 40%' }}>Employee</button>
+                        <button onClick={() => loginAsFake('admin')} className="btn btn-secondary" style={{ flex: '1 1 40%', boxShadow: 'none' }}>Admin</button>
+                        <button onClick={() => loginAsFake('hr')} className="btn btn-secondary" style={{ flex: '1 1 40%', boxShadow: 'none' }}>HR</button>
+                        <button onClick={() => loginAsFake('manager')} className="btn btn-secondary" style={{ flex: '1 1 40%', boxShadow: 'none' }}>Manager</button>
+                        <button onClick={() => loginAsFake('employee')} className="btn btn-secondary" style={{ flex: '1 1 40%', boxShadow: 'none' }}>Employee</button>
                     </div>
                 </div>
             </div>
