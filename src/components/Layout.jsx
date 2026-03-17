@@ -18,7 +18,7 @@ const EMPLOYEE_LINKS = [...BASE_LINKS];
 const MANAGER_LINKS = [
     ...BASE_LINKS,
     { to: '/manager', label: 'Evaluate Team', icon: <Icons.Users /> },
-    { to: '/manager/goals', label: 'Team Report', icon: <Icons.Chart /> },
+    { to: '/manager/team-report', label: 'Team Report', icon: <Icons.Chart /> },
     { to: '/hr/employees', label: 'Employees', icon: <Icons.Users /> },
 ];
 
@@ -35,7 +35,7 @@ const HR_LINKS = [
 const ADMIN_LINKS = [
     ...BASE_LINKS,
     { to: '/manager', label: 'Evaluate Team', icon: <Icons.Users /> },
-    { to: '/manager/goals', label: 'Team Report', icon: <Icons.Chart /> },
+    { to: '/manager/team-report', label: 'Team Report', icon: <Icons.Chart /> },
     { to: '/hr/employees', label: 'Employees', icon: <Icons.Users /> },
     { to: '/hr/cycles', label: 'Appraisal Cycles', icon: <Icons.Cycles /> },
     { to: '/hr/approvals', label: 'Approvals', icon: <Icons.Check /> },
@@ -189,21 +189,114 @@ export default function Layout({ children }) {
                                         {(!myNotifications || myNotifications.length === 0) ? (
                                             <div className="notif-empty">No notifications yet.</div>
                                         ) : (
-                                            myNotifications.map(notif => (
-                                                <div
-                                                    key={notif.id}
-                                                    className={`notif-item ${!notif.isRead ? 'unread' : ''}`}
-                                                    onClick={() => !notif.isRead && markNotificationAsRead(notif.id)}
-                                                >
-                                                    <div className="notif-item-title">
-                                                        <span>{notif.title}</span>
-                                                        <span className="notif-item-time">
-                                                            {new Date(notif.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                        </span>
-                                                    </div>
-                                                    <div className="notif-item-msg">{notif.message}</div>
-                                                </div>
-                                            ))
+                                            (() => {
+                                                const unread = myNotifications.filter(n => !n.isRead);
+                                                const read = myNotifications.filter(n => n.isRead);
+
+                                                const parseNotification = (notif) => {
+                                                    try {
+                                                        const parsed = JSON.parse(notif.message);
+                                                        return { text: parsed.text, link: parsed.link };
+                                                    } catch (e) {
+                                                        return { text: notif.message, link: null }; // Fallback for old notifications
+                                                    }
+                                                };
+
+                                                const handleNotifClick = (notif, parsed) => {
+                                                    if (!notif.isRead) markNotificationAsRead(notif.id);
+                                                    if (parsed.link) {
+                                                        setShowNotifications(false);
+                                                        navigate(parsed.link);
+                                                    }
+                                                };
+
+                                                return (
+                                                    <>
+                                                        {/* ── Unread Section ── */}
+                                                        {unread.length > 0 && (
+                                                            <>
+                                                                <div style={{ padding: '8px 16px 4px', fontSize: '11px', fontWeight: 700, color: 'var(--purple)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                                                                    🔔 New ({unread.length})
+                                                                </div>
+                                                                {unread.map(notif => {
+                                                                    const parsed = parseNotification(notif);
+                                                                    return (
+                                                                        <div 
+                                                                            key={notif.id} 
+                                                                            className="notif-item unread"
+                                                                            onClick={() => handleNotifClick(notif, parsed)}
+                                                                            style={{ cursor: parsed.link ? 'pointer' : 'default' }}
+                                                                        >
+                                                                            <div className="notif-item-title">
+                                                                                <span>{notif.title}</span>
+                                                                                <span className="notif-item-time">
+                                                                                    {new Date(notif.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="notif-item-msg">{parsed.text}</div>
+                                                                            <button
+                                                                                onClick={e => { e.stopPropagation(); markNotificationAsRead(notif.id); }}
+                                                                                style={{
+                                                                                    marginTop: '8px', fontSize: '11px', fontWeight: 600,
+                                                                                    background: 'var(--purple)', color: '#fff',
+                                                                                    border: 'none', borderRadius: '6px',
+                                                                                    padding: '4px 10px', cursor: 'pointer',
+                                                                                    transition: 'opacity 0.2s'
+                                                                                }}
+                                                                                onMouseOver={e => e.target.style.opacity = '0.85'}
+                                                                                onMouseOut={e => e.target.style.opacity = '1'}
+                                                                            >
+                                                                                ✓ Mark as read
+                                                                            </button>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </>
+                                                        )}
+
+                                                        {/* ── Read Section ── */}
+                                                        {read.length > 0 && (
+                                                            <>
+                                                                <div style={{
+                                                                    padding: '8px 16px 4px',
+                                                                    fontSize: '11px', fontWeight: 700,
+                                                                    color: 'var(--text-muted)',
+                                                                    textTransform: 'uppercase',
+                                                                    letterSpacing: '0.08em',
+                                                                    borderTop: unread.length > 0 ? '1px solid var(--border)' : 'none',
+                                                                    marginTop: unread.length > 0 ? '8px' : '0'
+                                                                }}>
+                                                                    ✓ Read
+                                                                </div>
+                                                                {read.map(notif => {
+                                                                    const parsed = parseNotification(notif);
+                                                                    return (
+                                                                        <div 
+                                                                            key={notif.id} 
+                                                                            className="notif-item" 
+                                                                            onClick={() => handleNotifClick(notif, parsed)}
+                                                                            style={{ opacity: 0.6, cursor: parsed.link ? 'pointer' : 'default' }}
+                                                                        >
+                                                                            <div className="notif-item-title">
+                                                                                <span>{notif.title}</span>
+                                                                                <span className="notif-item-time">
+                                                                                    {new Date(notif.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="notif-item-msg">{parsed.text}</div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </>
+                                                        )}
+
+                                                        {/* If all read and no unread */}
+                                                        {unread.length === 0 && read.length === 0 && (
+                                                            <div className="notif-empty">No notifications yet.</div>
+                                                        )}
+                                                    </>
+                                                );
+                                            })()
                                         )}
                                     </div>
                                 </div>

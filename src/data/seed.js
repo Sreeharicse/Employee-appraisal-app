@@ -27,15 +27,6 @@ export const DEMO_CYCLES = [
     },
 ];
 
-export const DEMO_GOALS = [
-    { id: 'g1', cycleId: 'c1', employeeId: 'u3', managerId: 'u2', title: 'Complete React Migration', description: 'Migrate legacy jQuery code to React components', weightage: 40, deadline: '2025-09-30', status: 'active' },
-    { id: 'g2', cycleId: 'c1', employeeId: 'u3', managerId: 'u2', title: 'Improve Test Coverage', description: 'Increase unit test coverage from 60% to 85%', weightage: 30, deadline: '2025-08-31', status: 'active' },
-    { id: 'g3', cycleId: 'c1', employeeId: 'u3', managerId: 'u2', title: 'Team Knowledge Sharing', description: 'Conduct 4 internal tech talks during the year', weightage: 30, deadline: '2025-12-01', status: 'active' },
-    { id: 'g4', cycleId: 'c1', employeeId: 'u4', managerId: 'u2', title: 'API Performance Optimization', description: 'Reduce average API response time by 40%', weightage: 50, deadline: '2025-10-31', status: 'active' },
-    { id: 'g5', cycleId: 'c1', employeeId: 'u4', managerId: 'u2', title: 'Documentation Improvement', description: 'Document all backend services with Swagger', weightage: 50, deadline: '2025-11-30', status: 'active' },
-    { id: 'g6', cycleId: 'c1', employeeId: 'u6', managerId: 'u5', title: 'Product Roadmap Delivery', description: 'Deliver 90% of roadmap items on schedule', weightage: 60, deadline: '2025-12-01', status: 'active' },
-    { id: 'g7', cycleId: 'c1', employeeId: 'u6', managerId: 'u5', title: 'User Research & Feedback', description: 'Conduct 10 user interviews and create insights report', weightage: 40, deadline: '2025-09-30', status: 'active' },
-];
 
 export const DEMO_SELF_REVIEWS = [
     {

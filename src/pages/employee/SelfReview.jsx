@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 
 export default function SelfReview() {
-    const { currentUser, cycles, evaluations = [], getGoalsForEmployee, getSelfReview, submitSelfReview, getScore, refreshData } = useApp();
+    const { currentUser, cycles, evaluations = [], getSelfReview, submitSelfReview, getScore, refreshData } = useApp();
 
     useEffect(() => {
         refreshData();
@@ -14,9 +14,7 @@ export default function SelfReview() {
 
     // Form State
     const [summary, setSummary] = useState('');
-    const [goalRatings, setGoalRatings] = useState({});
     const [comments, setComments] = useState('');
-    const [progress, setProgress] = useState({}); // { goalId: { percentage: 0, comment: '', complete: false } }
     const [competencies, setCompetencies] = useState({});
     const [feedback, setFeedback] = useState('');
     const [achievements, setAchievements] = useState('');
@@ -64,7 +62,6 @@ export default function SelfReview() {
     }, [activeCycles, selectedCycleId]);
 
     const cycle = cycles.find(c => c.id === selectedCycleId);
-    const goals = selectedCycleId ? getGoalsForEmployee(currentUser.id, selectedCycleId) : [];
     const isReadOnly = status === 'submitted';
 
     // Load existing data when cycle or employee changes
@@ -77,10 +74,8 @@ export default function SelfReview() {
         if (existing) {
             setSummary(existing.summary || '');
             setComments(existing.comments || '');
-            setGoalRatings(existing.goalRatings || {});
 
             const meta = existing.metadata || {};
-            setProgress(meta.progress || {});
 
             // Initialize competencies with 15 questions if not present
             const loadedComps = meta.competencies || {};
@@ -99,8 +94,6 @@ export default function SelfReview() {
         } else {
             setSummary('');
             setComments('');
-            setGoalRatings({});
-            setProgress({});
 
             const initialComps = {};
             COMPETENCY_QUESTIONS.forEach(q => {
@@ -174,9 +167,7 @@ export default function SelfReview() {
             cycleId: selectedCycleId,
             employeeId: currentUser.id,
             summary,
-            goalRatings,
             comments,
-            progress,
             competencies,
             feedback,
             achievements,

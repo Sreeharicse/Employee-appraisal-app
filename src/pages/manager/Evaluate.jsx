@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 export default function Evaluate() {
     const { employeeId } = useParams();
     const navigate = useNavigate();
-    const { currentUser, users, cycles, getGoalsForEmployee, getEvaluation, selfReviews, evaluations, submitEvaluation, calculateScore, getCategory, refreshData } = useApp();
+    const { currentUser, users, cycles, getEvaluation, selfReviews, evaluations, submitEvaluation, calculateScore, getCategory, refreshData } = useApp();
     const team = currentUser.role === 'admin'
         ? users.filter(u => u.role === 'hr' || u.role === 'manager')
         : users.filter(u => u.managerId === currentUser.id);
@@ -26,7 +26,6 @@ export default function Evaluate() {
     // Once saved as 'pending_approval' or 'approved', the evaluation is permanently locked
     const isReadOnly = status === 'pending_approval' || status === 'approved';
 
-    const [goalRatings, setGoalRatings] = useState({});
     const [competencies, setCompetencies] = useState({});
     const [feedback, setFeedback] = useState('');
 
@@ -77,7 +76,6 @@ export default function Evaluate() {
 
     const cycle = cycles.find(c => String(c.id) === String(selectedCycleId));
     const emp = users.find(u => String(u.id) === String(selectedEmp));
-    const empGoals = cycle && emp ? getGoalsForEmployee(selectedEmp, cycle.id) : [];
     const selfReview = cycle && emp ? selfReviews.find(r => String(r.employeeId) === String(selectedEmp) && String(r.cycleId) === String(cycle.id)) : null;
     const empComps = selfReview?.metadata?.competencies || {};
 
@@ -89,10 +87,6 @@ export default function Evaluate() {
         if (hasEdited) return;
 
         const ev = getEvaluation(selectedEmp, selectedCycleId);
-        const r = {};
-        empGoals.forEach(g => { r[g.id] = ev?.goalRatings?.[g.id] || 0; });
-
-        setGoalRatings(r);
 
         // Initialize manager competencies
         const loadedComps = ev?.metadata?.competencies || {};

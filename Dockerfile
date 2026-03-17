@@ -1,35 +1,39 @@
-# Build stage
-FROM node:20-alpine AS build
+# syntax=docker/dockerfile:1
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files and install dependencies
+COPY package.json package-lock.json* ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install
-
-# Copy source code
+# Copy source files
 COPY . .
 
-# Build the application
-# Note: Vite requires environment variables to be available at build time
-# if you want them embedded in the production bundle.
+# Pass build-time env vars
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_SUPABASE_ENCRYPTION_KEY
+ARG VITE_MSAL_CLIENT_ID
+ARG VITE_MSAL_TENANT_ID
+
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+ENV VITE_SUPABASE_ENCRYPTION_KEY=$VITE_SUPABASE_ENCRYPTION_KEY
+ENV VITE_MSAL_CLIENT_ID=$VITE_MSAL_CLIENT_ID
+ENV VITE_MSAL_TENANT_ID=$VITE_MSAL_TENANT_ID
 
+# Build the Vite app
 RUN npm run build
 
-# Production stage
-FROM nginx:stable-alpine
+# ── Production stage ──────────────────────────────────────
+FROM nginx:stable-alpine AS production
 
-# Copy custom nginx configuration for SPA routing
+# Copy custom nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy build output from build stage
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copy built assets from builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
 

@@ -91,19 +91,7 @@ export default function EmployeeDashboard() {
                         </div>
                     </div>
                 </div>
-                <div className="card" style={{ background: 'var(--bg-secondary)', border: '1px solid rgba(16, 185, 129, 0.15)' }}>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                        <div style={{ padding: '8px', background: 'var(--bg-card)', borderRadius: '8px', color: '#10b981' }}>
-                            <Icons.Check />
-                        </div>
-                        <div>
-                            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Clear Goals</div>
-                            <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                                Review your goals regularly throughout the cycle to track your progress and align with team objectives.
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
     );

@@ -25,7 +25,6 @@ export function AppProvider({ children }) {
     const [departments, setDepartments] = useState([]);
     const [designations, setDesignations] = useState([]);
     const [cycles, setCycles] = useState([]);
-    const [goals, setGoals] = useState([]);
     const [selfReviews, setSelfReviews] = useState([]);
     const [evaluations, setEvaluations] = useState([]);
     const [approvals, setApprovals] = useState([]);
@@ -44,9 +43,6 @@ export function AppProvider({ children }) {
             try {
                 const fakeCycles = localStorage.getItem('fake_cycles');
                 if (fakeCycles) setCycles(JSON.parse(fakeCycles));
-
-                const fakeGoals = localStorage.getItem('fake_goals');
-                if (fakeGoals) setGoals(JSON.parse(fakeGoals));
 
                 const fakeReviews = localStorage.getItem('fake_reviews');
                 if (fakeReviews) setSelfReviews(JSON.parse(fakeReviews));
@@ -252,9 +248,6 @@ export function AppProvider({ children }) {
                         const fakeCycles = localStorage.getItem('fake_cycles');
                         if (fakeCycles) setCycles(JSON.parse(fakeCycles));
 
-                        const fakeGoals = localStorage.getItem('fake_goals');
-                        if (fakeGoals) setGoals(JSON.parse(fakeGoals));
-
                         const fakeReviews = localStorage.getItem('fake_reviews');
                         if (fakeReviews) setSelfReviews(JSON.parse(fakeReviews));
 
@@ -381,7 +374,6 @@ export function AppProvider({ children }) {
     const resetAndSeedFakeData = () => {
         // Clear existing local mock data
         localStorage.removeItem('fake_cycles');
-        localStorage.removeItem('fake_goals');
         localStorage.removeItem('fake_reviews');
         localStorage.removeItem('fake_evaluations');
         localStorage.removeItem('fake_approvals');
@@ -390,17 +382,11 @@ export function AppProvider({ children }) {
         const seedCycles = [
             { id: 'cycle-2026', name: 'Annual Review 2026', startDate: '2026-01-01', endDate: '2026-12-31', status: 'active', createdBy: 'admin-001' }
         ];
-        const seedGoals = [
-            { id: 'goal-1', cycleId: 'cycle-2026', employeeId: '46342d06-791b-45e3-8ce2-a67eb322675c', managerId: 'b7e82aea-1d9e-4765-82e1-802f40adcb26', title: 'Complete Project Alpha', description: 'Deliver all components of Project Alpha on time.', weightage: 60, deadline: '2026-06-30', status: 'active' },
-            { id: 'goal-2', cycleId: 'cycle-2026', employeeId: '46342d06-791b-45e3-8ce2-a67eb322675c', managerId: 'b7e82aea-1d9e-4765-82e1-802f40adcb26', title: 'Upskill in React Native', description: 'Complete advanced certification Course.', weightage: 40, deadline: '2026-12-31', status: 'active' }
-        ];
 
         localStorage.setItem('fake_cycles', JSON.stringify(seedCycles));
-        localStorage.setItem('fake_goals', JSON.stringify(seedGoals));
 
         // Refresh state
         setCycles(seedCycles);
-        setGoals(seedGoals);
         setSelfReviews([]);
         setEvaluations([]);
         setApprovals([]);
@@ -538,9 +524,6 @@ export function AppProvider({ children }) {
             const fakeCycles = localStorage.getItem('fake_cycles');
             if (fakeCycles) setCycles(JSON.parse(fakeCycles));
 
-            const fakeGoals = localStorage.getItem('fake_goals');
-            if (fakeGoals) setGoals(JSON.parse(fakeGoals));
-
             const fakeReviews = localStorage.getItem('fake_reviews');
             if (fakeReviews) setSelfReviews(JSON.parse(fakeReviews));
 
@@ -632,13 +615,16 @@ export function AppProvider({ children }) {
     };
 
     // ──── Notifications ────
-    const createNotification = async (userIds, title, message, type = 'info') => {
+    const createNotification = async (userIds, title, message, type = 'info', link = null) => {
         if (!userIds || userIds.length === 0) return;
         const now = new Date().toISOString();
         
+        // Pack link into the message string securely so we don't need a DB schema change
+        const payloadStr = JSON.stringify({ text: message, link: link });
+
         if (localStorage.getItem('fake_session_role')) {
             const newNotifs = userIds.map(uid => ({
-                id: crypto.randomUUID(), userId: uid, title, message, type, isRead: false, createdAt: now
+                id: crypto.randomUUID(), userId: uid, title, message: payloadStr, type, isRead: false, createdAt: now
             }));
             setNotifications(p => {
                 const updated = [...newNotifs, ...p];
@@ -649,12 +635,11 @@ export function AppProvider({ children }) {
         }
 
         const inserts = userIds.map(uid => ({
-            user_id: uid, title, message, type, created_at: now
+            user_id: uid, title, message: payloadStr, type, created_at: now
         }));
         const { error } = await supabase.from('notifications').insert(inserts);
         if (error) console.error('Error creating notifications:', error.message);
         else {
-            // Also fetch to get IDs (or optimistically update for the current user)
             if (userIds.includes(currentUser?.id)) fetchAllData();
         }
     };
@@ -685,7 +670,7 @@ export function AppProvider({ children }) {
             // Notify all employees and managers
             const allUserIds = users.filter(u => u.role === 'employee' || u.role === 'manager').map(u => u.id);
             if (mapped.status === 'active') {
-                createNotification(allUserIds, 'New Appraisal Cycle', `The ${mapped.name} cycle has been launched.`, 'info');
+                createNotification(allUserIds, 'New Appraisal Cycle', `The ${mapped.name} cycle has been launched.`, 'info', '/employee/self-review');
             }
             return mapped;
         }
@@ -707,7 +692,7 @@ export function AppProvider({ children }) {
             
             if (mapped.status === 'active') {
                 const allUserIds = users.filter(u => u.role === 'employee' || u.role === 'manager').map(u => u.id);
-                createNotification(allUserIds, 'New Appraisal Cycle', `The ${mapped.name} cycle has been launched.`, 'info');
+                createNotification(allUserIds, 'New Appraisal Cycle', `The ${mapped.name} cycle has been launched.`, 'info', '/employee/self-review');
             }
             return mapped;
         }
@@ -724,7 +709,7 @@ export function AppProvider({ children }) {
             if (updates.status === 'active') {
                 const cName = cycles.find(c => c.id === id)?.name || updates.name || "A";
                 const allUserIds = users.filter(u => u.role === 'employee' || u.role === 'manager').map(u => u.id);
-                createNotification(allUserIds, 'Appraisal Cycle Active', `The ${cName} cycle is now active.`, 'info');
+                createNotification(allUserIds, 'Appraisal Cycle Active', `The ${cName} cycle is now active.`, 'info', '/employee/self-review');
             }
             return;
         }
@@ -741,7 +726,7 @@ export function AppProvider({ children }) {
             if (updates.status === 'active') {
                 const cName = cycles.find(c => c.id === id)?.name || updates.name || "A";
                 const allUserIds = users.filter(u => u.role === 'employee' || u.role === 'manager').map(u => u.id);
-                createNotification(allUserIds, 'Appraisal Cycle Active', `The ${cName} cycle is now active.`, 'info');
+                createNotification(allUserIds, 'Appraisal Cycle Active', `The ${cName} cycle is now active.`, 'info', '/employee/self-review');
             }
         }
     };
@@ -753,87 +738,71 @@ export function AppProvider({ children }) {
                 localStorage.setItem('fake_cycles', JSON.stringify(updated));
                 return updated;
             });
-            return;
+            return { success: true };
         }
 
-        const { error } = await supabase.from('cycles').delete().eq('id', id);
-        if (!error) setCycles(p => p.filter(c => c.id !== id));
+        try {
+            console.log(`[DEBUG] deleteCycle called for ID: ${id}`);
+            console.log(`[DEBUG] Current user:`, currentUser);
+
+            // 1. Fetch ALL evaluations for this cycle directly from DB to avoid missing any (stale local state)
+            const { data: dbEvals, error: fetchError } = await supabase.from('evaluations').select('id').eq('cycle_id', id);
+            if (fetchError) throw new Error(`Fetch evals failed: ${fetchError.message}`);
+            
+            const dbEvalIds = dbEvals?.map(e => e.id) || [];
+
+            // 2. Delete approvals linked to those evaluations
+            if (dbEvalIds.length > 0) {
+                const { error: appError } = await supabase.from('approvals').delete().in('eval_id', dbEvalIds);
+                if (appError) throw new Error(`Delete approvals failed: ${appError.message}`);
+            }
+
+            // 3. Delete evaluations linked to this cycle
+            const { error: evalError } = await supabase.from('evaluations').delete().eq('cycle_id', id);
+            if (evalError) throw new Error(`Delete evaluations failed: ${evalError.message}`);
+
+            // 4. Delete self_reviews linked to this cycle
+            const { error: selfError } = await supabase.from('self_reviews').delete().eq('cycle_id', id);
+            if (selfError) throw new Error(`Delete self_reviews failed: ${selfError.message}`);
+
+
+            // 6. Finally, delete the cycle itself
+            console.log(`[DEBUG] Final step: Deleting cycle ${id}...`);
+            const { data: deleteRes, error: cycleError } = await supabase.from('cycles').delete().eq('id', id).select();
+            
+            console.log(`[DEBUG] deleteRes:`, deleteRes);
+            console.log(`[DEBUG] cycleError:`, cycleError);
+            
+            if (cycleError) throw new Error(`Delete cycle failed: ${cycleError.message}`);
+            
+            if (!deleteRes || deleteRes.length === 0) {
+                throw new Error('Deletion failed: No cycle was removed from the database. This might be due to a permission issue (RLS).');
+            } else {
+                console.log(`Successfully deleted cycle ${id} from Supabase:`, deleteRes[0].name);
+            }
+            
+            // 7. Refresh local state to ensure consistency
+            await fetchAllData();
+            return { success: true };
+
+        } catch (err) {
+            console.error('Cascade delete error:', err);
+            return { success: false, error: err.message || 'Unknown error during cascade delete' };
+        }
     };
 
-    // ──── Goals CRUD ────
-    const addGoal = async (goal) => {
-        let mId = goal.managerId || currentUser?.id;
-
-        if (currentUser?.role === 'hr') {
-            const emp = users.find(u => u.id === goal.employeeId);
-            if (emp && emp.managerId) mId = emp.managerId;
+    const requestCycleDelete = async (cycle) => {
+        const admins = users.filter(u => u.role === 'admin').map(u => u.id);
+        if (admins.length > 0) {
+            await createNotification(
+                admins, 
+                '🗑️ Cycle Delete Request', 
+                `${currentUser?.name} (HR) has requested deletion of the '${cycle.name}' cycle. Please review and delete from Appraisal Cycles if approved.`, 
+                'warning'
+            );
         }
-
-        if (localStorage.getItem('fake_session_role')) {
-            const mapped = { id: crypto.randomUUID(), cycleId: goal.cycleId, employeeId: goal.employeeId, managerId: mId, title: goal.title, description: goal.description, weightage: goal.weightage, deadline: goal.deadline, status: 'active' };
-            setGoals(p => {
-                const updated = [...p, mapped];
-                localStorage.setItem('fake_goals', JSON.stringify(updated));
-                return updated;
-            });
-            return mapped;
-        }
-
-        const { data, error } = await supabase.from('goals').insert({
-            cycle_id: goal.cycleId,
-            employee_id: goal.employeeId,
-            manager_id: mId,
-            title: goal.title,
-            description: goal.description,
-            weightage: goal.weightage,
-            deadline: goal.deadline || null,
-            status: 'active',
-        }).select().single();
-        if (error) {
-            console.error('Supabase error adding goal:', error.message);
-            return null;
-        }
-        if (data) {
-            const mapped = { id: data.id, cycleId: data.cycle_id, employeeId: data.employee_id, managerId: data.manager_id, title: data.title, description: data.description, weightage: data.weightage, deadline: data.deadline, status: data.status };
-            setGoals(p => [...p, mapped]);
-            return mapped;
-        }
-        return null;
-    };
-    const updateGoal = async (id, updates) => {
-        if (localStorage.getItem('fake_session_role')) {
-            setGoals(p => {
-                const updated = p.map(g => g.id === id ? { ...g, ...updates } : g);
-                localStorage.setItem('fake_goals', JSON.stringify(updated));
-                return updated;
-            });
-            return;
-        }
-
-        const dbUpdates = {};
-        if (updates.title !== undefined) dbUpdates.title = updates.title;
-        if (updates.description !== undefined) dbUpdates.description = updates.description;
-        if (updates.weightage !== undefined) dbUpdates.weightage = updates.weightage;
-        if (updates.deadline !== undefined) dbUpdates.deadline = updates.deadline;
-        if (updates.status !== undefined) dbUpdates.status = updates.status;
-
-        const { error } = await supabase.from('goals').update(dbUpdates).eq('id', id);
-        if (!error) setGoals(p => p.map(g => g.id === id ? { ...g, ...updates } : g));
     };
 
-    const deleteGoal = async (id) => {
-        if (localStorage.getItem('fake_session_role')) {
-            setGoals(p => {
-                const updated = p.filter(g => g.id !== id);
-                localStorage.setItem('fake_goals', JSON.stringify(updated));
-                return updated;
-            });
-            return;
-        }
-
-        const { error } = await supabase.from('goals').delete().eq('id', id);
-        if (!error) setGoals(p => p.filter(g => g.id !== id));
-    };
 
     // ──── Self Reviews ────
     const submitSelfReview = async (review) => {
@@ -890,10 +859,10 @@ export function AppProvider({ children }) {
             const empManagerId = users.find(u => u.id === mapped.employeeId)?.managerId;
             const empName = users.find(u => u.id === mapped.employeeId)?.name;
             if (empManagerId) {
-                createNotification([empManagerId], 'Self-Review Submitted', `${empName} has submitted their self-review.`, 'success');
+                createNotification([empManagerId], 'Self-Review Submitted', `${empName} has submitted their self-review.`, 'success', '/manager/evaluate');
             } else {
                 const hrIds = users.filter(u => u.role === 'admin' || u.role === 'hr').map(u => u.id);
-                if (hrIds.length > 0) createNotification(hrIds, 'Self-Review Submitted', `${empName} has submitted their self-review (no manager assigned).`, 'success');
+                if (hrIds.length > 0) createNotification(hrIds, 'Self-Review Submitted', `${empName} has submitted their self-review (no manager assigned).`, 'success', '/hr/evaluations');
             }
 
             return mapped;
@@ -931,10 +900,10 @@ export function AppProvider({ children }) {
             const empManagerId = users.find(u => u.id === mapped.employeeId)?.managerId;
             const empName = users.find(u => u.id === mapped.employeeId)?.name;
             if (empManagerId) {
-                createNotification([empManagerId], 'Self-Review Submitted', `${empName} has submitted their self-review.`, 'success');
+                createNotification([empManagerId], 'Self-Review Submitted', `${empName} has submitted their self-review.`, 'success', '/manager/evaluate');
             } else {
                 const hrIds = users.filter(u => u.role === 'admin' || u.role === 'hr').map(u => u.id);
-                if (hrIds.length > 0) createNotification(hrIds, 'Self-Review Submitted', `${empName} has submitted their self-review (no manager assigned).`, 'success');
+                if (hrIds.length > 0) createNotification(hrIds, 'Self-Review Submitted', `${empName} has submitted their self-review (no manager assigned).`, 'success', '/hr/evaluations');
             }
 
             return mapped;
@@ -992,8 +961,8 @@ export function AppProvider({ children }) {
             // Only Notify Employee & HR if fully submitted
             if (mapped.status === 'pending_approval') {
                 const hrIds = users.filter(u => u.role === 'admin' || u.role === 'hr').map(u => u.id);
-                createNotification([evaluation.employeeId], 'Evaluation Submitted', `Your manager has submitted your evaluation. Pending HR approval.`, 'success');
-                createNotification(hrIds, 'Pending HR Approval', `Evaluation for ${users.find(u => u.id === evaluation.employeeId)?.name} is awaiting your approval.`, 'warning');
+                createNotification([evaluation.employeeId], 'Evaluation Submitted', `Your manager has submitted your evaluation. Pending HR approval.`, 'success', '/employee/evaluations');
+                createNotification(hrIds, 'Pending HR Approval', `Evaluation for ${users.find(u => u.id === evaluation.employeeId)?.name} is awaiting your approval.`, 'warning', '/hr/approvals');
             }
 
             return mapped;
@@ -1049,8 +1018,8 @@ export function AppProvider({ children }) {
             // Only Notify Employee & HR if fully submitted
             if (mapped.status === 'pending_approval') {
                 const hrIds = users.filter(u => u.role === 'admin' || u.role === 'hr').map(u => u.id);
-                createNotification([evaluation.employeeId], 'Evaluation Submitted', `Your manager has submitted your evaluation. Pending HR approval.`, 'success');
-                createNotification(hrIds, 'Pending HR Approval', `Evaluation for ${users.find(u => u.id === evaluation.employeeId)?.name} is awaiting your approval.`, 'warning');
+                createNotification([evaluation.employeeId], 'Evaluation Submitted', `Your manager has submitted your evaluation. Pending HR approval.`, 'success', '/employee/evaluations');
+                createNotification(hrIds, 'Pending HR Approval', `Evaluation for ${users.find(u => u.id === evaluation.employeeId)?.name} is awaiting your approval.`, 'warning', '/hr/approvals');
             }
 
             return mapped;
@@ -1075,8 +1044,8 @@ export function AppProvider({ children }) {
             // Notify Employee & Manager
             const theEval = evaluations.find(e => e.id === evalId);
             if (theEval) {
-                createNotification([theEval.employeeId], 'Evaluation Approved', 'Your appraisal results are now officially approved and available.', 'success');
-                createNotification([theEval.managerId], 'Evaluation Approved', `HR approved your evaluation for ${users.find(u => u.id === theEval.employeeId)?.name}.`, 'success');
+                createNotification([theEval.employeeId], 'Evaluation Approved', 'Your appraisal results are now officially approved and available.', 'success', '/employee/results');
+                createNotification([theEval.managerId], 'Evaluation Approved', `HR approved your evaluation for ${users.find(u => u.id === theEval.employeeId)?.name}.`, 'success', '/manager/evaluate');
             }
             return;
         }
@@ -1122,8 +1091,8 @@ export function AppProvider({ children }) {
         
         const theEval = evaluations.find(e => e.id === evalId);
         if (theEval) {
-            createNotification([theEval.employeeId], 'Evaluation Approved', 'Your appraisal results are now officially approved and available.', 'success');
-            createNotification([theEval.managerId], 'Evaluation Approved', `HR approved your evaluation for ${users.find(u => u.id === theEval.employeeId)?.name}.`, 'success');
+            createNotification([theEval.employeeId], 'Evaluation Approved', 'Your appraisal results are now officially approved and available.', 'success', '/employee/results');
+            createNotification([theEval.managerId], 'Evaluation Approved', `HR approved your evaluation for ${users.find(u => u.id === theEval.employeeId)?.name}.`, 'success', '/manager/evaluate');
         }
     };
 
@@ -1137,7 +1106,7 @@ export function AppProvider({ children }) {
             
             const theEval = evaluations.find(e => e.id === evalId);
             if (theEval) {
-                createNotification([theEval.managerId], 'Evaluation Rejected', `HR rejected your evaluation for ${users.find(u => u.id === theEval.employeeId)?.name}. Please review and resubmit.`, 'danger');
+                createNotification([theEval.managerId], 'Evaluation Rejected', `HR rejected your evaluation for ${users.find(u => u.id === theEval.employeeId)?.name}. Please review and resubmit.`, 'danger', '/manager/evaluate');
             }
             return;
         }
@@ -1147,7 +1116,7 @@ export function AppProvider({ children }) {
             setEvaluations(p => p.map(e => e.id === evalId ? { ...e, status: 'rejected', rejectionComment: comment } : e));
             const theEval = evaluations.find(e => e.id === evalId);
             if (theEval) {
-                createNotification([theEval.managerId], 'Evaluation Rejected', `HR rejected your evaluation for ${users.find(u => u.id === theEval.employeeId)?.name}. Please review and resubmit.`, 'danger');
+                createNotification([theEval.managerId], 'Evaluation Rejected', `HR rejected your evaluation for ${users.find(u => u.id === theEval.employeeId)?.name}. Please review and resubmit.`, 'danger', '/manager/evaluate');
             }
         }
     };
@@ -1196,13 +1165,13 @@ export function AppProvider({ children }) {
     // ──── Helpers (pure, not async — use local state) ────
     const getActiveCycle = () => cycles.find(c => c.status === 'active');
     const getUserById = (id) => users.find(u => u.id === id);
-    const getGoalsForEmployee = (empId, cycleId) => goals.filter(g => String(g.employeeId) === String(empId) && String(g.cycleId) === String(cycleId));
     const getTeamEmployees = (managerId) => users.filter(u => String(u.managerId) === String(managerId));
     const getSelfReview = (empId, cycleId) => selfReviews.find(r => String(r.employeeId) === String(empId) && String(r.cycleId) === String(cycleId));
     const getEvaluation = (empId, cycleId) => evaluations.find(e => String(e.employeeId) === String(empId) && String(e.cycleId) === String(cycleId));
     const getScore = (empId, cycleId) => {
         const ev = getEvaluation(empId, cycleId);
-        if (!ev) return null;
+        // Only calculate and expose scores once HR has approved the evaluation
+        if (!ev || ev.status !== 'approved') return null;
         const score = calculateScore(ev.workPerformanceRating, ev.behavioralRating, ev.hrRating || 0);
         return { score, category: getCategory(score) };
     };
@@ -1210,18 +1179,17 @@ export function AppProvider({ children }) {
 
     return (
         <AppContext.Provider value={{
-            currentUser, users, departments, designations, cycles, goals, selfReviews, evaluations, approvals, notifications,
+            currentUser, users, departments, designations, cycles, selfReviews, evaluations, approvals, notifications,
             login, loginWithMicrosoft, logout, register, loginAsFake,
             addUser, updateUser, deleteUser,
             addDepartment, deleteDepartment,
             addDesignation, deleteDesignation,
-            addCycle, updateCycle, deleteCycle,
-            addGoal, updateGoal, deleteGoal,
+            addCycle, updateCycle, deleteCycle, requestCycleDelete,
             submitSelfReview, submitEvaluation,
             theme, toggleTheme, refreshData: fetchAllData,
             encryptionKey, setEncryptionKey, resetAndSeedFakeData,
             approveEvaluation, rejectEvaluation,
-            getActiveCycle, getUserById, getGoalsForEmployee,
+            getActiveCycle, getUserById,
             getTeamEmployees, getSelfReview, getEvaluation, getScore,
             calculateScore, getCategory,
             createNotification, markNotificationAsRead,

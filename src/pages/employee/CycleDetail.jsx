@@ -21,7 +21,6 @@ export default function CycleDetail() {
         );
     }
 
-    const goals = getGoalsForEmployee(currentUser.id, cycleId);
     const selfReview = getSelfReview(currentUser.id, cycleId);
     const evaluation = getEvaluation(currentUser.id, cycleId);
     const scoreData = getScore(currentUser.id, cycleId);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 
 export default function Results() {
-    const { currentUser, cycles, getGoalsForEmployee, getEvaluation, getSelfReview, getScore, getUserById, approvals } = useApp();
+    const { currentUser, cycles, getEvaluation, getSelfReview, getScore, getUserById, approvals } = useApp();
 
     // Only show results after HR has approved the evaluation
     const cyclesWithResults = cycles.filter(c => {
@@ -53,7 +53,6 @@ export default function Results() {
     const cycle = cycles.find(c => c.id === selectedCycleId) || cyclesWithResults[0];
     const ev = getEvaluation(currentUser.id, cycle.id);
     const scoreData = ev ? getScore(currentUser.id, cycle.id) : null;
-    const goals = getGoalsForEmployee(currentUser.id, cycle.id);
     const selfReview = getSelfReview(currentUser.id, cycle.id);
     const manager = ev ? getUserById(ev.managerId) : null;
     const approval = approvals.find(a => a.evalId === ev.id);

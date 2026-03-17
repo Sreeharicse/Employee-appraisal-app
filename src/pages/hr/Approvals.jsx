@@ -31,7 +31,7 @@ const HR_QUESTIONS = [
 ];
 
 export default function Approvals() {
-    const { evaluations, users, cycles, goals, approveEvaluation, rejectEvaluation, getScore, currentUser, getCategory } = useApp();
+    const { evaluations, users, cycles, approveEvaluation, rejectEvaluation, getScore, currentUser, getCategory } = useApp();
     const [comment, setComment] = useState({});
     const [hrRatings, setHrRatings] = useState({});
 

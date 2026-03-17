@@ -12,19 +12,16 @@ import Employees from './pages/hr/Employees';
 import Cycles from './pages/hr/Cycles';
 import Approvals from './pages/hr/Approvals';
 import Reports from './pages/hr/Reports';
-import HRGoals from './pages/hr/Goals';
 import HRCycleDetail from './pages/hr/CycleDetail';
 
 // Admin pages
 import AdminSettings from './pages/admin/Settings';
 
 // Manager pages
-import Goals from './pages/manager/Goals';
 import Evaluate from './pages/manager/Evaluate';
 import TeamReport from './pages/manager/TeamReport';
 
 // Employee pages
-import EmployeeGoals from './pages/employee/Goals';
 import SelfReview from './pages/employee/SelfReview';
 import Results from './pages/employee/Results';
 import CycleDetail from './pages/employee/CycleDetail';
@@ -77,19 +74,17 @@ function AppRoutes() {
       <Route path="/hr/cycles" element={<ProtectedRoute allowedRoles={['hr']}><Layout><Cycles /></Layout></ProtectedRoute>} />
       <Route path="/hr/approvals" element={<ProtectedRoute allowedRoles={['hr', 'admin']}><Layout><Approvals /></Layout></ProtectedRoute>} />
       <Route path="/hr/reports" element={<ProtectedRoute allowedRoles={['hr']}><Layout><Reports /></Layout></ProtectedRoute>} />
-      <Route path="/hr/goals" element={<ProtectedRoute allowedRoles={['hr']}><Layout><HRGoals /></Layout></ProtectedRoute>} />
 
       {/* Admin Routes */}
       <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><Layout><AdminSettings /></Layout></ProtectedRoute>} />
 
       {/* Manager Routes */}
       <Route path="/manager" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><Layout><Evaluate /></Layout></ProtectedRoute>} />
-      <Route path="/manager/goals" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><Layout><TeamReport /></Layout></ProtectedRoute>} />
+      <Route path="/manager/team-report" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><Layout><TeamReport /></Layout></ProtectedRoute>} />
       <Route path="/manager/evaluate/:employeeId" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><Layout><Evaluate /></Layout></ProtectedRoute>} />
 
       {/* Employee (Baseline) Routes - Accessible by All */}
       <Route path="/employee/cycle/:cycleId" element={<ProtectedRoute allowedRoles={['all']}><Layout><CycleDetail /></Layout></ProtectedRoute>} />
-      <Route path="/employee/goals" element={<ProtectedRoute allowedRoles={['all']}><Layout><EmployeeGoals /></Layout></ProtectedRoute>} />
       <Route path="/employee/self-review" element={<ProtectedRoute allowedRoles={['all']}><Layout><SelfReview /></Layout></ProtectedRoute>} />
       <Route path="/employee/results" element={<ProtectedRoute allowedRoles={['all']}><Layout><Results /></Layout></ProtectedRoute>} />
 
