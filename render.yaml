@@ -1,20 +1,17 @@
 services:
-  - type: web
+  - type: static
     name: appraisal-app
-    runtime: docker
-    plan: free
-    region: singapore
+    # Use the root directory as the context
+    buildCommand: npm install && npm run build
+    publishPath: dist
     envVars:
       - key: VITE_SUPABASE_URL
-        sync: false
       - key: VITE_SUPABASE_ANON_KEY
-        sync: false
       - key: VITE_SUPABASE_ENCRYPTION_KEY
-        sync: false
       - key: VITE_MSAL_CLIENT_ID
-        sync: false
       - key: VITE_MSAL_TENANT_ID
-        sync: false
-    # Use the Dockerfile in the root directory
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    # The absolute fix for SPA routing on Render
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

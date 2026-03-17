@@ -29,8 +29,8 @@ RUN npm run build
 # ── Production stage ──────────────────────────────────────
 FROM nginx:stable-alpine AS production
 
-# Copy custom nginx config - replacing the main config for total control
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy custom nginx config to the default configuration directory
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
